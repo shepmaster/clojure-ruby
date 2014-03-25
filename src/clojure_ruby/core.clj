@@ -1,6 +1,5 @@
-(ns clojure-ruby.core)
+(ns clojure-ruby.core
+  (:require [instaparse.core :as insta]))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+(def ruby-parser
+  (insta/parser (clojure.java.io/resource "ruby.ebnf")))
