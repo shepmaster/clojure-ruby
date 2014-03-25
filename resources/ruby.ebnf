@@ -4,17 +4,17 @@
 var_ref = id
 
 (* naked calls have higher precedence than infix, so we use negative lookahead *)
-method_call = method_call_args |
-              method_call_infix |
-              method_call_bracket |
-              !method_call_infix method_call_naked
+<method_call> = method_call_args |
+                method_call_infix |
+                method_call_bracket |
+                !method_call_infix method_call_naked
 
 method_call_args    = statement <"."> id <"("> statement (<","> statement)* <")">
 method_call_infix   = statement infix_symbol statement
 method_call_bracket = statement <"["> statement <"]">
 method_call_naked   = statement <"."> id
 
-infix_symbol = "+=" | "-=" | "<" | "=" | "==" | "!=" | "&&"
+<infix_symbol> = "+=" | "-=" | "<" | "=" | "==" | "!=" | "&&"
 
 flow_control = if | while | until | case
 if           = <"if"> statement program (<"elsif"> statement program)* <"end">
@@ -23,7 +23,7 @@ until        = <"until"> statement program <"end">
 case         = <"case"> statement (<"when"> statement program)+ <"end">
 keyword      = "if" | "while" | "until" | "case" | "when" | "end"
 
-id      = !keyword #"[\w_]+"
+<id>    = !keyword #"[\w_]+"
 ws      = #"\s+"
 literal = string | number
 number  = #"\d+"
