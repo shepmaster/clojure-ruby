@@ -12,6 +12,12 @@
          [[:method_call_naked
            [:var_ref "alpha"]
            "beta"]]))
+  (is (unambigous? "alpha.beta(1)"))
+  (is (= (ruby-parser "alpha.beta(1)")
+         [[:method_call_args
+           [:var_ref "alpha"]
+           "beta"
+           [:number "1"]]]))
   (is (unambigous? "alpha.beta(1, 2)"))
   (is (= (ruby-parser "alpha.beta(1, 2)")
          [[:method_call_args
