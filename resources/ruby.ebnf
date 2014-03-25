@@ -23,8 +23,8 @@ until          = <"until"> statement program <"end">
 case           = <"case"> statement (<"when"> statement program)+ <"end">
 keyword        = "if" | "while" | "until" | "case" | "when" | "end"
 
-<id>    = !keyword #"[\w_]+"
-ws      = #"\s+"
-literal = string | number
-number  = #"\d+"
-string  = <'"'> #"[^\"]+" <'"'>
+<id>      = !(literal | keyword) #"\w+"
+ws        = #"\s+"
+<literal> = string | number
+number    = #"\d+"
+string    = <'"'> #"[^\"]+" <'"'>

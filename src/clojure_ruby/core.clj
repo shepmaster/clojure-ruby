@@ -53,12 +53,13 @@
         args (map evaluate args)]
     (rb-send obj method args)))
 
-(defmethod evaluate :literal [stmt]
-  (let [[_ val] stmt
-        [type val] val]
-    (case type
-      :number (Long. val)
-      :string val)))
+(defmethod evaluate :number [stmt]
+  (let [[_ val] stmt]
+    (Long. val)))
+
+(defmethod evaluate :string [stmt]
+  (let [[_ val] stmt]
+    val))
 
 (defmethod evaluate :while [stmt]
   (let [[_ predicate & body] stmt
