@@ -1,6 +1,6 @@
-program = statement*
-statement = <[ws]> (flow_control | literal | var_ref | method_call | grouping) <[ws]>
-grouping = <"("> statement <")">
+<program> = statement*
+<statement> = <[ws]> (flow_control | literal | var_ref | method_call | grouping) <[ws]>
+<grouping> = <"("> statement <")">
 var_ref = id
 
 method_call = method_call_args |
@@ -26,4 +26,4 @@ id      = !keyword #"[\w_]+"
 ws      = #"\s+"
 literal = string | number
 number  = #"\d+"
-string  = '"' #"[^\"]+" '"'
+string  = <'"'> #"[^\"]+" <'"'>
