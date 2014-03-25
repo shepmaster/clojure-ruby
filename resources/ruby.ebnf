@@ -3,10 +3,11 @@
 <grouping> = <"("> statement <")">
 var_ref = id
 
+(* naked calls have higher precedence than infix, so we use negative lookahead *)
 method_call = method_call_args |
               method_call_infix |
               method_call_bracket |
-              method_call_naked
+              !method_call_infix method_call_naked
 
 method_call_args    = statement <"."> id <"("> statement (<","> statement)* <")">
 method_call_infix   = statement infix_symbol statement
