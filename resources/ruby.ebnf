@@ -16,12 +16,12 @@ method_call_naked   = statement <"."> id
 
 <infix_symbol> = "+=" | "-=" | "<" | "=" | "==" | "!=" | "&&"
 
-flow_control = if | while | until | case
-if           = <"if"> statement program (<"elsif"> statement program)* <"end">
-while        = <"while"> statement program <"end">
-until        = <"until"> statement program <"end">
-case         = <"case"> statement (<"when"> statement program)+ <"end">
-keyword      = "if" | "while" | "until" | "case" | "when" | "end"
+<flow_control> = if | while | until | case
+if             = <"if"> statement program (<"elsif"> statement program)* <"end">
+while          = <"while"> statement program <"end">
+until          = <"until"> statement program <"end">
+case           = <"case"> statement (<"when"> statement program)+ <"end">
+keyword        = "if" | "while" | "until" | "case" | "when" | "end"
 
 <id>    = !keyword #"[\w_]+"
 ws      = #"\s+"
