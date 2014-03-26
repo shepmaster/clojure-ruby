@@ -43,7 +43,10 @@
 (defn create-string [s]
   {:data s
    :methods {"size" (fn string-size [this]
-                      (create-number (count (:data this))))}
+                      (create-number (count (:data this))))
+             "[]" (fn string-bracket [this idx]
+                    (let [idx (host-send idx :number)]
+                      (create-string (subs (:data this) idx (inc idx)))))}
    :host-methods {:string (fn string-host-string [this] (:data this))}})
 
 (def Array
