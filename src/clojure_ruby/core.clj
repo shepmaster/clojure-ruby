@@ -122,6 +122,17 @@
     (if predicate
       (mapv evaluate body))))
 
+(defmethod evaluate-one :case [stmt]
+  (let [[_ predicate & whens] stmt
+        predicate (evaluate predicate)]
+    (loop [whens whens]
+      (if-let [[when & whens] (seq whens)]
+        (let [[_ matcher & body] when
+              matcher (evaluate matcher)]
+          (if (rb-send predicate "===" [matcher])
+            (mapv evaluate body)
+            (recur whens)))))))
+
 (defn evaluate [stmt]
   (prn stmt)
   (try
