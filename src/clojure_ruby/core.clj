@@ -70,7 +70,10 @@
                       (create-number (count (:data this))))
              "[]" (fn string-bracket [this idx]
                     (let [idx (host-send idx :number)]
-                      (create-string (subs (:data this) idx (inc idx)))))}
+                      (create-string (subs (:data this) idx (inc idx)))))
+             "===" (fn string-triple-equal [this other]
+                     (let [other (host-send other :string)]
+                       (= (:data this) other)))}
    :host-methods {:string (fn string-host-string [this] (:data this))}})
 
 (def Array
