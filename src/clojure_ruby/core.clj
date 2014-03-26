@@ -189,7 +189,6 @@
             (recur whens)))))))
 
 (defn evaluate [stmt]
-  (prn stmt)
   (try
     (evaluate-one stmt)
     (catch Exception e
