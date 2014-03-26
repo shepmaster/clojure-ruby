@@ -37,7 +37,8 @@ method_call_bracket_assignment_mutate = bracket_common assignment_mutate_rhs
 if             = <"if"> predicate program (<"elsif"> predicate program)* <"end">
 while          = <"while"> predicate program <"end">
 until          = <"until"> predicate program <"end">
-case           = <"case"> predicate (S <"when"> predicate program)+ <"end">
+case           = <"case"> predicate when+ <"end">
+when           = S <"when"> predicate program
 <predicate>    = single_statement
 keyword        = "if" | "elsif" | "while" | "until" | "case" | "when" | "end"
 

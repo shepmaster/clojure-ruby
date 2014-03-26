@@ -167,8 +167,9 @@
   (is (unambigous? "case 1; when 1; 2; end"))
   (is (= (ruby-parser "case 1; when 1; 2; end")
          [[:case [:number "1"]
-           [:number "1"]
-           [:number "2"]]])))
+           [:when
+            [:number "1"]
+            [:number "2"]]]])))
 
 (deftest multiple-statements
   (is (unambigous? "a;b"))
