@@ -55,11 +55,22 @@
     (apply meth obj args)
     (throw (RuntimeException. (str "Object " obj " does not have method " method-name)))))
 
+(def global-true
+  {:methods {"&&" (fn true-and [this other] other)}
+   :host-methods {:boolean (fn true-host-boolean [this] true)}})
+
+(def global-false
+  {:methods {"&&" (fn false-and [this other] this)}
+   :host-methods {:boolean (fn false-host-boolean [this] false)}})
+
+(defn create-boolean [v]
+  (if v global-true global-false))
+
 (defn create-number [n]
   {:data n
    :methods {"<" (fn number-lt [this other]
                    (let [other (host-send other :number)]
-                     (< (:data this) other)))
+                     (create-boolean (< (:data this) other))))
              "+" (fn number-plus [this other]
                    (let [other (host-send other :number)]
                      (create-number (+ (:data this) other))))
@@ -68,10 +79,10 @@
                      (create-number (- (:data this) other))))
              "==" (fn number-equal [this other]
                     (let [other (host-send other :number)]
-                      (= (:data this) other)))
+                      (create-boolean (= (:data this) other))))
              "!=" (fn number-not-equal [this other]
                     (let [other (host-send other :number)]
-                      (not= (:data this) other)))}
+                      (create-boolean (not= (:data this) other))))}
    :host-methods {:number (fn number-host-number [this] (:data this))}})
 
 (defn create-string [s]
@@ -83,7 +94,7 @@
                       (create-string (subs (:data this) idx (inc idx)))))
              "===" (fn string-triple-equal [this other]
                      (let [other (host-send other :string)]
-                       (= (:data this) other)))}
+                       (create-boolean (= (:data this) other))))}
    :host-methods {:string (fn string-host-string [this] (:data this))}})
 
 (defn create-array [cnt val]
@@ -149,18 +160,18 @@
    (loop [branches branches]
      (if-let [[branch & branches] branches]
        (let [[_ predicate & body] branch]
-         (if (evaluate predicate)
+         (if (host-send (evaluate predicate) :boolean)
            (mapv evaluate body)
            (recur branches)))))))
 
 (defmethod evaluate-one :while [stmt]
   (let [[_ predicate & body] stmt]
-    (while (evaluate predicate)
+    (while (host-send (evaluate predicate) :boolean)
       (mapv evaluate body))))
 
 (defmethod evaluate-one :until [stmt]
   (let [[_ predicate & body] stmt]
-    (while (not (evaluate predicate))
+    (while (not (host-send (evaluate predicate) :boolean))
       (mapv evaluate body))))
 
 (defmethod evaluate-one :case [stmt]
@@ -170,7 +181,7 @@
       (if-let [[when & whens] (seq whens)]
         (let [[_ matcher & body] when
               matcher (evaluate matcher)]
-          (if (rb-send predicate "===" [matcher])
+          (if (host-send (rb-send predicate "===" [matcher]) :boolean)
             (mapv evaluate body)
             (recur whens)))))))
 
