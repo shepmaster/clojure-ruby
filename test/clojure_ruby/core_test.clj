@@ -6,6 +6,18 @@
 (defn unambigous? [code]
   (= 1 (count (insta/parses ruby-parser code))))
 
+(deftest assignment
+  (is (unambigous? "a = 1"))
+  (is (= (ruby-parser "a = 1")
+         [[:assignment
+           "a"
+           [:number "1"]]]))
+  (is (unambigous? "a = b"))
+  (is (= (ruby-parser "a = b")
+         [[:assignment
+           "a"
+           [:var_ref "b"]]])))
+
 (deftest method-calls
   (is (unambigous? "alpha.beta()"))
   (is (= (ruby-parser "alpha.beta()")
@@ -30,6 +42,12 @@
          [[:method_call_bracket
            [:var_ref "alpha"]
            [:number "1"]]]))
+  (is (unambigous? "alpha[1] = 2"))
+  (is (= (ruby-parser "alpha[1] = 2")
+         [[:method_call_bracket_assignment
+           [:var_ref "alpha"]
+           [:number "1"]
+           [:number "2"]]]))
   (is (unambigous? "alpha < 4"))
   (is (= (ruby-parser "alpha < 4")
          [[:method_call_infix

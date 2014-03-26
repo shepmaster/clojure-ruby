@@ -3,13 +3,20 @@
 
 <method_call_infix_x> = method_call_infix | method_call_x
 method_call_infix     = method_call_infix_x S infix_symbol S method_call_infix_x
-<infix_symbol>        = "+=" | "-=" | "<" | "=" | "==" | "!=" | "&&"
+<infix_symbol>        = "+=" | "-=" | "<" | "==" | "!=" | "&&"
 
-<method_call_x>     = method_call | method_call_bracket | the_rest
-method_call         = method_call_x <"."> id <"("> [statement (<","> statement)*] <")">
-method_call_bracket = method_call_x <"["> statement <"]">
+<method_call_x>                = method_call |
+                                 method_call_bracket |
+                                 method_call_bracket_assignment |
+                                 the_rest
+method_call                    = method_call_x <"."> id <"("> [statement (<","> statement)*] <")">
+method_call_bracket            = method_call_x <"["> statement <"]">
+method_call_bracket_assignment = method_call_x <"["> statement <"]"> assignment_rhs
 
-<the_rest> = flow_control | literal | var_ref | grouping
+<the_rest> = assignment | flow_control | literal | var_ref | grouping
+
+assignment       = id assignment_rhs
+<assignment_rhs> = S <"="> S statement
 
 <flow_control> = if | while | until | case
 if             = <"if"> statement program (<"elsif"> statement program)* <"end">
