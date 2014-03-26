@@ -92,7 +92,7 @@
   (let [[_ predicate & body] stmt
         predicate (evaluate predicate)]
     (if predicate
-      (map evaluate body))))
+      (mapv evaluate body))))
 
 (defn evaluate-all [stmts]
   (when-let [[stmt & stmts] stmts]
