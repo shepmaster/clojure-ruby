@@ -10,13 +10,13 @@
         val (evaluate variables val)]
     (swap! variables assoc name val)))
 
-(defmethod evaluate-one :var_ref [variables stmt]
+(defmethod evaluate-one :var-ref [variables stmt]
   (let [[_ name] stmt]
     (if-let [var (get @variables name)]
       var
       (throw (ex-info "Cannot find variable" {:name name})))))
 
-(defmethod evaluate-one :method_call [variables stmt]
+(defmethod evaluate-one :method-call [variables stmt]
   (let [[_ obj method & args] stmt
         obj (evaluate variables obj)
         args (map (partial evaluate variables) args)]

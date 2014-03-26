@@ -10,35 +10,35 @@
 (defn rewrite-assignment-mutate [var-name meth val]
   (let [real-meth (mutating-method->real-method meth)]
     [:assignment var-name
-     [:method_call
-      [:var_ref var-name]
+     [:method-call
+      [:var-ref var-name]
       real-meth
       val]]))
 
 (defn rewrite-bracket-assignment-mutate [obj idx meth val]
   (let [real-meth (mutating-method->real-method meth)]
-    [:method_call obj "[]=" idx
-     [:method_call
-      [:method_call obj "[]" idx]
+    [:method-call obj "[]=" idx
+     [:method-call
+      [:method-call obj "[]" idx]
       real-meth
       val]]))
 
 (defn rename-infix [obj meth arg]
-  [:method_call obj meth arg])
+  [:method-call obj meth arg])
 
 (defn rename-bracket [obj idx]
-  [:method_call obj "[]" idx])
+  [:method-call obj "[]" idx])
 
 (defn rename-bracket-assignment [obj idx val]
-  [:method_call obj "[]=" idx val])
+  [:method-call obj "[]=" idx val])
 
 (def cleaning-map
-  {:assignment_mutate rewrite-assignment-mutate
-   :method_call_bracket_assignment_mutate rewrite-bracket-assignment-mutate
-   :method_call_logic rename-infix
-   :method_call_relop rename-infix
-   :method_call_bracket rename-bracket
-   :method_call_bracket_assignment rename-bracket-assignment})
+  {:assignment-mutate rewrite-assignment-mutate
+   :method-call-bracket-assignment-mutate rewrite-bracket-assignment-mutate
+   :method-call-logic rename-infix
+   :method-call-relop rename-infix
+   :method-call-bracket rename-bracket
+   :method-call-bracket-assignment rename-bracket-assignment})
 
 (defn clean-parse-tree [tree]
   (insta/transform cleaning-map tree))

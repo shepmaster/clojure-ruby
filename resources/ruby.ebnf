@@ -1,54 +1,54 @@
-<program>          = [statement] (<statement_term> statement)* <[statement_term]> [S]
-<statement>        = bare_statement
-<inline_statement> = bare_statement S
-<single_statement> = bare_statement <statement_term>
-<bare_statement>   = S assignment_x
-<statement_term>   = ES ("\n" | ";")
+<program>          = [statement] (<statement-term> statement)* <[statement-term]> [S]
+<statement>        = bare-statement
+<inline-statement> = bare-statement S
+<single-statement> = bare-statement <statement-term>
+<bare-statement>   = S assignment-x
+<statement-term>   = ES ("\n" | ";")
 
-<assignment_x>          = assignment |
-                          assignment_mutate |
-                          method_call_logic_x
-assignment              = id assignment_rhs
-assignment_mutate       = id assignment_mutate_rhs
-<assignment_rhs>        = S <"="> S method_call_logic_x
-<assignment_mutate_rhs> = S infix_mutator S method_call_logic_x
-<infix_mutator>         = "+=" | "-="
+<assignment-x>          = assignment |
+                          assignment-mutate |
+                          method-call-logic-x
+assignment              = id assignment-rhs
+assignment-mutate       = id assignment-mutate-rhs
+<assignment-rhs>        = S <"="> S method-call-logic-x
+<assignment-mutate-rhs> = S infix-mutator S method-call-logic-x
+<infix-mutator>         = "+=" | "-="
 
-<method_call_logic_x> = method_call_logic | method_call_relop_x
-method_call_logic     = method_call_logic_x S infix_symbol S method_call_logic_x
-<infix_symbol>        = "&&"
+<method-call-logic-x> = method-call-logic | method-call-relop-x
+method-call-logic     = method-call-logic-x S infix-symbol S method-call-logic-x
+<infix-symbol>        = "&&"
 
-<method_call_relop_x> = method_call_relop | method_call_x
-method_call_relop     = method_call_relop_x S relop_symbol S method_call_relop_x
-<relop_symbol>        = "<" | "==" | "!="
+<method-call-relop-x> = method-call-relop | method-call-x
+method-call-relop     = method-call-relop-x S relop-symbol S method-call-relop-x
+<relop-symbol>        = "<" | "==" | "!="
 
-<method_call_x>                       = method_call |
-                                        method_call_bracket |
-                                        method_call_bracket_assignment |
-                                        method_call_bracket_assignment_mutate |
-                                        the_rest
-method_call                           = method_call_x <"."> id [arglist]
-method_call_bracket                   = bracket_common
-method_call_bracket_assignment        = bracket_common assignment_rhs
-method_call_bracket_assignment_mutate = bracket_common assignment_mutate_rhs
-<bracket_common>                      = method_call_x <"["> arg <"]">
+<method-call-x>                       = method-call |
+                                        method-call-bracket |
+                                        method-call-bracket-assignment |
+                                        method-call-bracket-assignment-mutate |
+                                        the-rest
+method-call                           = method-call-x <"."> id [arglist]
+method-call-bracket                   = bracket-common
+method-call-bracket-assignment        = bracket-common assignment-rhs
+method-call-bracket-assignment-mutate = bracket-common assignment-mutate-rhs
+<bracket-common>                      = method-call-x <"["> arg <"]">
 <arglist>                             = <"("> [arg (<","> arg)*] <")">
-<arg>                                 = inline_statement
+<arg>                                 = inline-statement
 
-<the_rest> = flow_control | literal | var_ref | grouping
+<the-rest> = flow-control | literal | var-ref | grouping
 
-<flow_control> = if | while | until | case
-if             = <"if"> if_branch (<"elsif"> if_branch)* <"end">
-if_branch      = predicate program
+<flow-control> = if | while | until | case
+if             = <"if"> if-branch (<"elsif"> if-branch)* <"end">
+if-branch      = predicate program
 while          = <"while"> predicate program <"end">
 until          = <"until"> predicate program <"end">
 case           = <"case"> predicate when+ <"end">
 when           = S <"when"> predicate program
-<predicate>    = single_statement
+<predicate>    = single-statement
 keyword        = "if" | "elsif" | "while" | "until" | "case" | "when" | "end"
 
 <literal> = string | number
-var_ref = id
+var-ref = id
 <grouping> = <"("> statement <")">
 
 <id>      = !(literal | keyword) #"\w+"
