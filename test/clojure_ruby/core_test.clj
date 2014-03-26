@@ -91,15 +91,24 @@
            [:number "2"]]]))
   (is (unambigous? "alpha < 4"))
   (is (= (ruby-parser "alpha < 4")
-         [[:method_call_infix
+         [[:method_call_relop
            [:var_ref "alpha"]
            "<"
            [:number "4"]]])))
 
-(deftest infix-and-regular-precedence
+(deftest relational-operator-has-higher-precedence-than-logic-operator
+  (is (unambigous?    "a < b && x == y"))
+  (is (= (ruby-parser "a < b && x == y")
+         [[:method_call_logic
+           [:method_call_relop [:var_ref "a"] "<" [:var_ref "b"]]
+           "&&"
+           [:method_call_relop [:var_ref "x"] "==" [:var_ref "y"]]]])))
+
+
+(deftest method-call-has-higher-precedence-than-relational-operator
   (is (unambigous? "alpha.beta < 4"))
   (is (= (ruby-parser "alpha.beta < 4")
-         [[:method_call_infix
+         [[:method_call_relop
            [:method_call
             [:var_ref "alpha"]
             "beta"]
@@ -107,34 +116,12 @@
            [:number "4"]]]))
   (is (unambigous? "1 == gamma.delta"))
   (is (= (ruby-parser "1 == gamma.delta")
-         [[:method_call_infix
+         [[:method_call_relop
            [:number "1"]
            "=="
            [:method_call
             [:var_ref "gamma"]
-            "delta"]]]))
-  (is (unambigous? "a.b && x.y"))
-  (is (= (ruby-parser "a.b && x.y")
-         [[:method_call_infix
-           [:method_call
-            [:var_ref "a"]
-            "b"]
-           "&&"
-           [:method_call
-            [:var_ref "x"]
-            "y"]]]))
-  (is (unambigous? "a.b(1) && x.y(1)"))
-  (is (= (ruby-parser "a.b(1) && x.y(1)")
-         [[:method_call_infix
-           [:method_call
-            [:var_ref "a"]
-            "b"
-            [:number "1"]]
-           "&&"
-           [:method_call
-            [:var_ref "x"]
-            "y"
-            [:number "1"]]]])))
+            "delta"]]])))
 
 (deftest flow-if
   (is (unambigous?    "if 1; o.m; 10; end"))

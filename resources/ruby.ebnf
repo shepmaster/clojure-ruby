@@ -7,16 +7,20 @@
 
 <assignment_x>          = assignment |
                           assignment_mutate |
-                          method_call_infix_x
+                          method_call_logic_x
 assignment              = id assignment_rhs
 assignment_mutate       = id assignment_mutate_rhs
-<assignment_rhs>        = S <"="> S method_call_infix_x
-<assignment_mutate_rhs> = S infix_mutator S method_call_infix_x
+<assignment_rhs>        = S <"="> S method_call_logic_x
+<assignment_mutate_rhs> = S infix_mutator S method_call_logic_x
 <infix_mutator>         = "+=" | "-="
 
-<method_call_infix_x> = method_call_infix | method_call_x
-method_call_infix     = method_call_infix_x S infix_symbol S method_call_infix_x
-<infix_symbol>        = "<" | "==" | "!=" | "&&"
+<method_call_logic_x> = method_call_logic | method_call_relop_x
+method_call_logic     = method_call_logic_x S infix_symbol S method_call_logic_x
+<infix_symbol>        = "&&"
+
+<method_call_relop_x> = method_call_relop | method_call_x
+method_call_relop     = method_call_relop_x S relop_symbol S method_call_relop_x
+<relop_symbol>        = "<" | "==" | "!="
 
 <method_call_x>                       = method_call |
                                         method_call_bracket |

@@ -35,7 +35,8 @@
 (def cleaning-map
   {:assignment_mutate rewrite-assignment-mutate
    :method_call_bracket_assignment_mutate rewrite-bracket-assignment-mutate
-   :method_call_infix rename-infix
+   :method_call_logic rename-infix
+   :method_call_relop rename-infix
    :method_call_bracket rename-bracket
    :method_call_bracket_assignment rename-bracket-assignment})
 
