@@ -1,0 +1,6 @@
+STDOUT.putc(72)
+STDOUT.putc(101)
+STDOUT.putc(108)
+STDOUT.putc(108)
+STDOUT.putc(111)
+STDOUT.putc(33)
