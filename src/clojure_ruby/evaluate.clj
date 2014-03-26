@@ -69,7 +69,5 @@
 (defn evaluate-all [stmts]
   (let [variables (atom {})]
     (core/register-global-variables variables)
-    (loop [stmts stmts]
-      (when-let [[stmt & stmts] stmts]
-        (evaluate variables stmt)
-        (recur stmts)))))
+    (doseq [stmt stmts]
+      (evaluate variables stmt))))
