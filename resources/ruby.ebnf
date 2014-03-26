@@ -1,30 +1,31 @@
 <program> = statement*
-<statement> = <[ws]> (flow_control | literal | var_ref | method_call | grouping) <[ws]>
-<grouping> = <"("> statement <")">
-var_ref = id
+<statement> = S method_call_infix_x S
 
-(* naked calls have higher precedence than infix, so we use negative lookahead *)
-<method_call> = method_call_args |
-                method_call_infix |
-                method_call_bracket |
-                !(method_call_infix | method_call_args) method_call_naked
+<method_call_infix_x> = method_call_infix | method_call_x
+method_call_infix     = method_call_infix_x S infix_symbol S method_call_infix_x
+<infix_symbol>        = "+=" | "-=" | "<" | "=" | "==" | "!=" | "&&"
 
-method_call_args    = statement <"."> id <"("> statement (<","> statement)* <")">
-method_call_infix   = statement infix_symbol statement
-method_call_bracket = statement <"["> statement <"]">
-method_call_naked   = statement <"."> id
+<method_call_x>     = method_call | method_call_bracket | the_rest
+method_call         = method_call_x <"."> id <"("> [statement (<","> statement)*] <")">
+method_call_bracket = method_call_x <"["> statement <"]">
 
-<infix_symbol> = "+=" | "-=" | "<" | "=" | "==" | "!=" | "&&"
+<the_rest> = flow_control | literal | var_ref | grouping
 
 <flow_control> = if | while | until | case
 if             = <"if"> statement program (<"elsif"> statement program)* <"end">
 while          = <"while"> statement program <"end">
 until          = <"until"> statement program <"end">
 case           = <"case"> statement (<"when"> statement program)+ <"end">
-keyword        = "if" | "while" | "until" | "case" | "when" | "end"
+keyword        = "if" | "elsif" | "while" | "until" | "case" | "when" | "end"
+
+<literal> = string | number
+var_ref = id
+<grouping> = <"("> statement <")">
 
 <id>      = !(literal | keyword) #"\w+"
+
+<S>       = <[ws]>
 ws        = #"\s+"
-<literal> = string | number
+
 number    = #"\d+"
 string    = <'"'> #"[^\"]+" <'"'>
