@@ -92,6 +92,9 @@
              "[]" (fn string-bracket [this idx]
                     (let [idx (host-send idx :number)]
                       (create-string (subs (:data this) idx (inc idx)))))
+             "==" (fn string-triple-equal [this other]
+                    (let [other (host-send other :string)]
+                      (create-boolean (= (:data this) other))))
              "===" (fn string-triple-equal [this other]
                      (let [other (host-send other :string)]
                        (create-boolean (= (:data this) other))))}
