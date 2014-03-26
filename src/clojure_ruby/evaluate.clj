@@ -1,5 +1,5 @@
 (ns clojure-ruby.evaluate
-  (:require [clojure-ruby.messaging :refer :all]
+  (:require [clojure-ruby.messaging :as msg]
             [clojure-ruby.corelib :refer :all]))
 
 (declare evaluate)
@@ -20,7 +20,7 @@
   (let [[_ obj method & args] stmt
         obj (evaluate variables obj)
         args (map (partial evaluate variables) args)]
-    (rb-send obj method args)))
+    (msg/ruby obj method args)))
 
 (defmethod evaluate-one :number [variables stmt]
   (let [[_ val] stmt]
@@ -35,18 +35,18 @@
    (loop [branches branches]
      (if-let [[branch & branches] branches]
        (let [[_ predicate & body] branch]
-         (if (host-send (evaluate variables predicate) :boolean)
+         (if (msg/host (evaluate variables predicate) :boolean)
            (mapv (partial evaluate variables) body)
            (recur branches)))))))
 
 (defmethod evaluate-one :while [variables stmt]
   (let [[_ predicate & body] stmt]
-    (while (host-send (evaluate variables predicate) :boolean)
+    (while (msg/host (evaluate variables predicate) :boolean)
       (mapv (partial evaluate variables) body))))
 
 (defmethod evaluate-one :until [variables stmt]
   (let [[_ predicate & body] stmt]
-    (while (not (host-send (evaluate variables predicate) :boolean))
+    (while (not (msg/host (evaluate variables predicate) :boolean))
       (mapv (partial evaluate variables) body))))
 
 (defmethod evaluate-one :case [variables stmt]
@@ -56,7 +56,7 @@
       (if-let [[when & whens] (seq whens)]
         (let [[_ matcher & body] when
               matcher (evaluate variables matcher)]
-          (if (host-send (rb-send predicate "===" [matcher]) :boolean)
+          (if (msg/host (msg/ruby predicate "===" [matcher]) :boolean)
             (mapv (partial evaluate variables) body)
             (recur whens)))))))
 

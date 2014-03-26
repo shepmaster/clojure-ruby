@@ -1,5 +1,5 @@
 (ns clojure-ruby.corelib
-  (:require [clojure-ruby.messaging :refer :all]))
+  (:require [clojure-ruby.messaging :as msg]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -19,23 +19,23 @@
 (declare create-number)
 
 (defn number-lt [this other]
-  (let [other (host-send other :number)]
+  (let [other (msg/host other :number)]
     (create-boolean (< (:data this) other))))
 
 (defn number-plus [this other]
-  (let [other (host-send other :number)]
+  (let [other (msg/host other :number)]
     (create-number (+ (:data this) other))))
 
 (defn number-minus [this other]
-  (let [other (host-send other :number)]
+  (let [other (msg/host other :number)]
     (create-number (- (:data this) other))))
 
 (defn number-equal [this other]
-  (let [other (host-send other :number)]
+  (let [other (msg/host other :number)]
     (create-boolean (= (:data this) other))))
 
 (defn number-not-equal [this other]
-  (let [other (host-send other :number)]
+  (let [other (msg/host other :number)]
     (create-boolean (not= (:data this) other))))
 
 (defn number-host-number [this]
@@ -58,11 +58,11 @@
   (create-number (count (:data this))))
 
 (defn string-bracket [this idx]
-  (let [idx (host-send idx :number)]
+  (let [idx (msg/host idx :number)]
     (create-string (subs (:data this) idx (inc idx)))))
 
 (defn string-equal [this other]
-  (let [other (host-send other :string)]
+  (let [other (msg/host other :string)]
     (create-boolean (= (:data this) other))))
 
 (defn string-host-string [this]
@@ -79,11 +79,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn array-bracket [this idx]
-  (let [idx (host-send idx :number)]
+  (let [idx (msg/host idx :number)]
     (nth @(:data this) idx)))
 
 (defn array-bracket-assign [this idx val]
-  (let [idx (host-send idx :number)]
+  (let [idx (msg/host idx :number)]
     (swap! (:data this) assoc idx val)))
 
 (defn create-array [cnt val]
@@ -92,7 +92,7 @@
              "[]=" array-bracket-assign}})
 
 (defn Array-new [this cnt val]
-  (let [cnt (host-send cnt :number)]
+  (let [cnt (msg/host cnt :number)]
     (create-array cnt val)))
 
 (def Array
@@ -101,7 +101,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn File-read [this name]
-  (let [name (host-send name :string)]
+  (let [name (msg/host name :string)]
     (create-string (slurp name))))
 
 (def File
@@ -110,7 +110,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn STDOUT-putc [this char-int]
-  (let [char-int (host-send char-int :number)]
+  (let [char-int (msg/host char-int :number)]
     (print (char char-int))))
 
 (def STDOUT
