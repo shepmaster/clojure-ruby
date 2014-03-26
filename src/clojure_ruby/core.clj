@@ -157,6 +157,11 @@
     (while (evaluate predicate)
       (mapv evaluate body))))
 
+(defmethod evaluate-one :until [stmt]
+  (let [[_ predicate & body] stmt]
+    (while (not (evaluate predicate))
+      (mapv evaluate body))))
+
 (defmethod evaluate-one :case [stmt]
   (let [[_ predicate & whens] stmt
         predicate (evaluate predicate)]
