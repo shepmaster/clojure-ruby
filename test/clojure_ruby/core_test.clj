@@ -33,6 +33,14 @@
            "a"
            [:var_ref "b"]]])))
 
+(deftest mutating-assignment
+  (is (unambigous?    "a += 1"))
+  (is (= (ruby-parser "a += 1")
+         [[:assignment_mutate "a" "+=" [:number "1"]]]))
+  (is (unambigous?    "a -= 1"))
+  (is (= (ruby-parser "a -= 1")
+         [[:assignment_mutate "a" "-=" [:number "1"]]])))
+
 (deftest assignment-and-method-call
   (is (unambigous? "a = o.m"))
   (is (= (ruby-parser "a = o.m")
@@ -73,6 +81,13 @@
          [[:method_call_bracket_assignment
            [:var_ref "alpha"]
            [:number "1"]
+           [:number "2"]]]))
+  (is (unambigous?    "alpha[1] += 2"))
+  (is (= (ruby-parser "alpha[1] += 2")
+         [[:method_call_bracket_assignment_mutate
+           [:var_ref "alpha"]
+           [:number "1"]
+           "+="
            [:number "2"]]]))
   (is (unambigous? "alpha < 4"))
   (is (= (ruby-parser "alpha < 4")

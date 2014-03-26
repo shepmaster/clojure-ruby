@@ -5,23 +5,31 @@
 <bare_statement>   = S assignment_x
 <statement_term>   = ES ("\n" | ";")
 
-<assignment_x>   = assignment | method_call_infix_x
-assignment       = id assignment_rhs
-<assignment_rhs> = S <"="> S method_call_infix_x
+<assignment_x>          = assignment |
+                          assignment_mutate |
+                          method_call_infix_x
+assignment              = id assignment_rhs
+assignment_mutate       = id assignment_mutate_rhs
+<assignment_rhs>        = S <"="> S method_call_infix_x
+<assignment_mutate_rhs> = S infix_mutator S method_call_infix_x
+<infix_mutator>         = "+=" | "-="
 
 <method_call_infix_x> = method_call_infix | method_call_x
 method_call_infix     = method_call_infix_x S infix_symbol S method_call_infix_x
-<infix_symbol>        = "+=" | "-=" | "<" | "==" | "!=" | "&&"
+<infix_symbol>        = "<" | "==" | "!=" | "&&"
 
-<method_call_x>                = method_call |
-                                 method_call_bracket |
-                                 method_call_bracket_assignment |
-                                 the_rest
-method_call                    = method_call_x <"."> id [arglist]
-method_call_bracket            = method_call_x <"["> arg <"]">
-method_call_bracket_assignment = method_call_x <"["> arg <"]"> assignment_rhs
-<arglist>                      = <"("> [arg (<","> arg)*] <")">
-<arg>                          = inline_statement
+<method_call_x>                       = method_call |
+                                        method_call_bracket |
+                                        method_call_bracket_assignment |
+                                        method_call_bracket_assignment_mutate |
+                                        the_rest
+method_call                           = method_call_x <"."> id [arglist]
+method_call_bracket                   = bracket_common
+method_call_bracket_assignment        = bracket_common assignment_rhs
+method_call_bracket_assignment_mutate = bracket_common assignment_mutate_rhs
+<bracket_common>                      = method_call_x <"["> arg <"]">
+<arglist>                             = <"("> [arg (<","> arg)*] <")">
+<arg>                                 = inline_statement
 
 <the_rest> = flow_control | literal | var_ref | grouping
 
