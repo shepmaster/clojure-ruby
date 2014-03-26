@@ -99,6 +99,13 @@
 
 (swap! variables assoc "File" File)
 
+(def STDOUT
+  {:methods {"putc" (fn STDOUT-putc [this char-int]
+                      (let [char-int (host-send char-int :number)]
+                        (print (char char-int))))}})
+
+(swap! variables assoc "STDOUT" STDOUT)
+
 (declare evaluate)
 (defmulti evaluate-one first)
 
