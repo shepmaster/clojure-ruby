@@ -4,6 +4,23 @@
 (def ruby-parser
   (insta/parser (clojure.java.io/resource "ruby.ebnf")))
 
+(defn rename-infix [obj meth arg]
+  [:method_call obj meth arg])
+
+(defn rename-bracket [obj idx]
+  [:method_call obj "[]" idx])
+
+(defn rename-bracket-assignment [obj idx val]
+  [:method_call obj "[]=" idx])
+
+(def cleaning-map
+  {:method_call_infix rename-infix
+   :method_call_bracket rename-bracket
+   :method_call_bracket_assignment rename-bracket-assignment})
+
+(defn clean-parse-tree [tree]
+  (insta/transform cleaning-map tree))
+
 (def variables (atom {}))
 
 (defn create-string [s]
@@ -39,12 +56,6 @@
       (throw (RuntimeException. (str "Cannot find variable [" name "]"))))))
 
 (defmethod evaluate :method_call [stmt]
-  (let [[_ obj method & args] stmt
-        obj (evaluate obj)
-        args (map evaluate args)]
-    (rb-send obj method args)))
-
-(defmethod evaluate :method_call_infix [stmt]
   (let [[_ obj method & args] stmt
         obj (evaluate obj)
         args (map evaluate args)]
