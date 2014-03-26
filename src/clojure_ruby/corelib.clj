@@ -119,6 +119,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn register-global-variables [variables]
-  (swap! variables assoc "Array" Array)
-  (swap! variables assoc "File" File)
-  (swap! variables assoc "STDOUT" STDOUT))
+  (swap! variables merge {"Array" Array
+                          "File" File
+                          "STDOUT" STDOUT}))
