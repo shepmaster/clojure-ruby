@@ -1,6 +1,8 @@
 (ns clojure-ruby.corelib
   (:require [clojure-ruby.messaging :refer :all]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (def global-true
   {:methods {"&&" (fn true-and [this other] other)}
    :host-methods {:boolean (fn true-host-boolean [this] true)}})
@@ -48,44 +50,73 @@
              "!=" number-not-equal}
    :host-methods {:number number-host-number}})
 
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(declare create-string)
+
+(defn string-size [this]
+  (create-number (count (:data this))))
+
+(defn string-bracket [this idx]
+  (let [idx (host-send idx :number)]
+    (create-string (subs (:data this) idx (inc idx)))))
+
+(defn string-equal [this other]
+  (let [other (host-send other :string)]
+    (create-boolean (= (:data this) other))))
+
+(defn string-host-string [this]
+  (:data this))
+
 (defn create-string [s]
   {:data s
-   :methods {"size" (fn string-size [this]
-                      (create-number (count (:data this))))
-             "[]" (fn string-bracket [this idx]
-                    (let [idx (host-send idx :number)]
-                      (create-string (subs (:data this) idx (inc idx)))))
-             "==" (fn string-triple-equal [this other]
-                    (let [other (host-send other :string)]
-                      (create-boolean (= (:data this) other))))
-             "===" (fn string-triple-equal [this other]
-                     (let [other (host-send other :string)]
-                       (create-boolean (= (:data this) other))))}
-   :host-methods {:string (fn string-host-string [this] (:data this))}})
+   :methods {"size" string-size
+             "[]" string-bracket
+             "==" string-equal
+             "===" string-equal}
+   :host-methods {:string string-host-string}})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn array-bracket [this idx]
+  (let [idx (host-send idx :number)]
+    (nth @(:data this) idx)))
+
+(defn array-bracket-assign [this idx val]
+  (let [idx (host-send idx :number)]
+    (swap! (:data this) assoc idx val)))
 
 (defn create-array [cnt val]
   {:data (atom (vec (repeat cnt val)))
-   :methods {"[]" (fn array-bracket [this idx]
-                    (let [idx (host-send idx :number)]
-                      (nth @(:data this) idx)))
-             "[]=" (fn array-bracket-assign [this idx val]
-                     (let [idx (host-send idx :number)]
-                       (swap! (:data this) assoc idx val)))}})
+   :methods {"[]" array-bracket
+             "[]=" array-bracket-assign}})
+
+(defn Array-new [this cnt val]
+  (let [cnt (host-send cnt :number)]
+    (create-array cnt val)))
 
 (def Array
-  {:methods {"new" (fn Array-new [this cnt val]
-                     (let [cnt (host-send cnt :number)]
-                       (create-array cnt val)))}})
+  {:methods {"new" Array-new}})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn File-read [this name]
+  (let [name (host-send name :string)]
+    (create-string (slurp name))))
 
 (def File
-  {:methods {"read" (fn File-read [this name]
-                      (let [name (host-send name :string)]
-                        (create-string (slurp name))))}})
+  {:methods {"read" File-read}})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn STDOUT-putc [this char-int]
+  (let [char-int (host-send char-int :number)]
+    (print (char char-int))))
 
 (def STDOUT
-  {:methods {"putc" (fn STDOUT-putc [this char-int]
-                      (let [char-int (host-send char-int :number)]
-                        (print (char char-int))))}})
+  {:methods {"putc" STDOUT-putc}})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn register-global-variables [variables]
   (swap! variables assoc "Array" Array)
