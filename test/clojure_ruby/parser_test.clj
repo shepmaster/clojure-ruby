@@ -1,6 +1,6 @@
-(ns clojure-ruby.core-test
+(ns clojure-ruby.parser-test
   (:require [clojure.test :refer :all]
-            [clojure-ruby.core :refer :all]
+            [clojure-ruby.parser :refer :all]
             [instaparse.core :as insta]))
 
 (defn unambigous? [code]
