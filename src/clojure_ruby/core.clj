@@ -62,6 +62,9 @@
              "+" (fn number-plus [this other]
                    (let [other (host-send other :number)]
                      (create-number (+ (:data this) other))))
+             "-" (fn number-minus [this other]
+                   (let [other (host-send other :number)]
+                     (create-number (- (:data this) other))))
              "==" (fn number-equal [this other]
                     (let [other (host-send other :number)]
                       (= (:data this) other)))}
