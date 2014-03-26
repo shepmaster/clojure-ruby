@@ -88,45 +88,49 @@
 
 (swap! variables assoc "File" File)
 
-(defmulti evaluate first)
+(declare evaluate)
+(defmulti evaluate-one first)
 
-(defmethod evaluate :assignment [stmt]
+(defmethod evaluate-one :assignment [stmt]
   (let [[_ name val] stmt
         val (evaluate val)]
     (swap! variables assoc name val)))
 
-(defmethod evaluate :var_ref [stmt]
+(defmethod evaluate-one :var_ref [stmt]
   (let [[_ name] stmt]
     (if-let [var (get @variables name)]
       var
       (throw (RuntimeException. (str "Cannot find variable [" name "]"))))))
 
-(defmethod evaluate :method_call [stmt]
+(defmethod evaluate-one :method_call [stmt]
   (let [[_ obj method & args] stmt
         obj (evaluate obj)
         args (map evaluate args)]
     (rb-send obj method args)))
 
-(defmethod evaluate :number [stmt]
+(defmethod evaluate-one :number [stmt]
   (let [[_ val] stmt]
     (create-number (Long. val))))
 
-(defmethod evaluate :string [stmt]
+(defmethod evaluate-one :string [stmt]
   (let [[_ val] stmt]
     (create-string val)))
 
-(defmethod evaluate :while [stmt]
+(defmethod evaluate-one :while [stmt]
   (let [[_ predicate & body] stmt
         predicate (evaluate predicate)]
     (if predicate
       (mapv evaluate body))))
 
+(defn evaluate [stmt]
+  (prn stmt)
+  (try
+    (evaluate-one stmt)
+    (catch Exception e
+      (let [[start end] (insta/span stmt)]
+        (throw (RuntimeException. (str "evaluation failed; [" start ", " end "]") e))))))
+
 (defn evaluate-all [stmts]
   (when-let [[stmt & stmts] stmts]
-    (try
-      (prn stmt)
-      (evaluate stmt)
-      (catch Exception e
-        (let [[start end] (insta/span stmt)]
-          (throw (RuntimeException. (str "evaluation failed; [" start ", " end "]") e)))))
+    (evaluate stmt)
     (recur stmts)))
