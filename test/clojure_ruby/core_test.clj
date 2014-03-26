@@ -81,7 +81,7 @@
            "<"
            [:number "4"]]])))
 
-(deftest infix-and-naked
+(deftest infix-and-regular-precedence
   (is (unambigous? "alpha.beta < 4"))
   (is (= (ruby-parser "alpha.beta < 4")
          [[:method_call_infix
@@ -121,7 +121,7 @@
             "y"
             [:number "1"]]]])))
 
-(deftest if
+(deftest flow-if
   (is (unambigous?    "if 1; o.m; 10; end"))
   (is (= (ruby-parser "if 1; o.m; 10; end")
          [[:if [:number "1"]
@@ -134,21 +134,21 @@
            [:number "3"]
            [:number "4"]]])))
 
-(deftest while
+(deftest flow-while
   (is (unambigous? "while 1; o.m; 10; end"))
   (is (= (ruby-parser "while 1; o.m; 10; end")
          [[:while [:number "1"]
            [:method_call [:var_ref "o"] "m"]
            [:number "10"]]])))
 
-(deftest until
+(deftest flow-until
   (is (unambigous? "until 1; o.m; 10; end"))
   (is (= (ruby-parser "until 1; o.m; 10; end")
          [[:until [:number "1"]
            [:method_call [:var_ref "o"] "m"]
            [:number "10"]]])))
 
-(deftest case
+(deftest flow-case
   (is (unambigous? "case 1; when 1; 2; end"))
   (is (= (ruby-parser "case 1; when 1; 2; end")
          [[:case [:number "1"]
