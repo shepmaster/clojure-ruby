@@ -34,7 +34,8 @@ method_call_bracket_assignment_mutate = bracket_common assignment_mutate_rhs
 <the_rest> = flow_control | literal | var_ref | grouping
 
 <flow_control> = if | while | until | case
-if             = <"if"> predicate program (<"elsif"> predicate program)* <"end">
+if             = <"if"> if_branch (<"elsif"> if_branch)* <"end">
+if_branch      = predicate program
 while          = <"while"> predicate program <"end">
 until          = <"until"> predicate program <"end">
 case           = <"case"> predicate when+ <"end">

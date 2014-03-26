@@ -139,15 +139,17 @@
 (deftest flow-if
   (is (unambigous?    "if 1; o.m; 10; end"))
   (is (= (ruby-parser "if 1; o.m; 10; end")
-         [[:if [:number "1"]
-           [:method_call [:var_ref "o"] "m"]
-           [:number "10"]]]))
+         [[:if
+           [:if_branch [:number "1"]
+            [:method_call [:var_ref "o"] "m"]
+            [:number "10"]]]]))
   (is (unambigous?    "if 1; 2; elsif 3; 4; end"))
   (is (= (ruby-parser "if 1; 2; elsif 3; 4; end")
-         [[:if [:number "1"]
-           [:number "2"]
-           [:number "3"]
-           [:number "4"]]])))
+         [[:if
+           [:if_branch [:number "1"]
+            [:number "2"]]
+           [:if_branch [:number "3"]
+            [:number "4"]]]])))
 
 (deftest flow-while
   (is (unambigous? "while 1; o.m; 10; end"))
