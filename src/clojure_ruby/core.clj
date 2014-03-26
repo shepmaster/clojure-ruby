@@ -23,17 +23,41 @@
 
 (def variables (atom {}))
 
+(defn host-send [obj method-sym & args]
+  (if-let [meth (get-in obj [:host-methods method-sym])]
+    (apply meth obj args)
+    (throw (RuntimeException. (str "object " obj " does not have host method " method-sym)))))
+
+(defn rb-send [obj method-name args]
+  (if-let [meth (get-in obj [:methods method-name])]
+    (apply meth obj args)
+    (throw (RuntimeException. (str "Object " obj " does not have method " method-name)))))
+
+(defn create-number [n]
+  {:data n
+   :methods {"<" (fn number-lt [this other]
+                   (let [other (host-send other :number)]
+                     (< (:data this) other)))}
+   :host-methods {:number (fn number-host-number [this] (:data this))}})
+
 (defn create-string [s]
   {:data s
-   :methods {"size" (fn string-size [this] (count (:data this)))}})
+   :methods {"size" (fn string-size [this]
+                      (create-number (count (:data this))))}
+   :host-methods {:string (fn string-host-string [this] (:data this))}})
 
 (def Array
-  {:methods {"new" (fn Array-new [this cnt val] (atom (vec (repeat cnt val))))}})
+  {:methods {"new" (fn Array-new [this cnt val]
+                     (let [cnt (host-send cnt :number)
+                           val (host-send val :number)]
+                       (atom (vec (repeat cnt val)))))}})
 
 (swap! variables assoc "Array" Array)
 
 (def File
-  {:methods {"read" (fn File-read [this name] (create-string (slurp name)))}})
+  {:methods {"read" (fn File-read [this name]
+                      (let [name (host-send name :string)]
+                        (create-string (slurp name))))}})
 
 (swap! variables assoc "File" File)
 
@@ -43,11 +67,6 @@
   (let [[_ name val] stmt
         val (evaluate val)]
     (swap! variables assoc name val)))
-
-(defn rb-send [obj method-name args]
-  (if-let [meth (get-in obj [:methods method-name])]
-    (apply meth obj args)
-    (throw (RuntimeException. (str "Object " obj " does not have method " method-name)))))
 
 (defmethod evaluate :var_ref [stmt]
   (let [[_ name] stmt]
@@ -63,11 +82,11 @@
 
 (defmethod evaluate :number [stmt]
   (let [[_ val] stmt]
-    (Long. val)))
+    (create-number (Long. val))))
 
 (defmethod evaluate :string [stmt]
   (let [[_ val] stmt]
-    val))
+    (create-string val)))
 
 (defmethod evaluate :while [stmt]
   (let [[_ predicate & body] stmt
