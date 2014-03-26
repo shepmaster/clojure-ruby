@@ -76,11 +76,19 @@
                        (= (:data this) other)))}
    :host-methods {:string (fn string-host-string [this] (:data this))}})
 
+(defn create-array [cnt val]
+  {:data (atom (vec (repeat cnt val)))
+   :methods {"[]" (fn array-bracket [this idx]
+                    (let [idx (host-send idx :number)]
+                      (nth @(:data this) idx)))
+             "[]=" (fn array-bracket-assign [this idx val]
+                     (let [idx (host-send idx :number)]
+                       (swap! (:data this) assoc idx val)))}})
+
 (def Array
   {:methods {"new" (fn Array-new [this cnt val]
-                     (let [cnt (host-send cnt :number)
-                           val (host-send val :number)]
-                       (atom (vec (repeat cnt val)))))}})
+                     (let [cnt (host-send cnt :number)]
+                       (create-array cnt val)))}})
 
 (swap! variables assoc "Array" Array)
 
