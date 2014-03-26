@@ -103,3 +103,37 @@
             [:var_ref "x"]
             "y"
             [:number "1"]]]])))
+
+(deftest if
+  (is (unambigous?    "if 1 \n o.m() \n 10 \n end"))
+  (is (= (ruby-parser "if 1 \n o.m() \n 10 \n end")
+         [[:if [:number "1"]
+           [:method_call [:var_ref "o"] "m"]
+           [:number "10"]]]))
+  (is (unambigous?    "if 1 \n 2 \n elsif 3 \n 4 \n end"))
+  (is (= (ruby-parser "if 1 \n 2 \n elsif 3 \n 4 \n end")
+         [[:if [:number "1"]
+           [:number "2"]
+           [:number "3"]
+           [:number "4"]]])))
+
+(deftest while
+  (is (unambigous? "while 1 \n o.m() \n 10 \n end"))
+  (is (= (ruby-parser "while 1 \n o.m() \n 10 \n end")
+         [[:while [:number "1"]
+           [:method_call [:var_ref "o"] "m"]
+           [:number "10"]]])))
+
+(deftest until
+  (is (unambigous? "until 1 \n o.m() \n 10 \n end"))
+  (is (= (ruby-parser "until 1 \n o.m() \n 10 \n end")
+         [[:until [:number "1"]
+           [:method_call [:var_ref "o"] "m"]
+           [:number "10"]]])))
+
+(deftest case
+  (is (unambigous? "case 1 \n when 1 \n 2 \n end"))
+  (is (= (ruby-parser "case 1 \n when 1 \n 2 \n end")
+         [[:case [:number "1"]
+           [:number "1"]
+           [:number "2"]]])))
