@@ -128,9 +128,8 @@
     (create-string val)))
 
 (defmethod evaluate-one :while [stmt]
-  (let [[_ predicate & body] stmt
-        predicate (evaluate predicate)]
-    (if predicate
+  (let [[_ predicate & body] stmt]
+    (while (evaluate predicate)
       (mapv evaluate body))))
 
 (defmethod evaluate-one :case [stmt]
