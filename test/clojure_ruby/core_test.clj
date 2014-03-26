@@ -179,3 +179,15 @@
          (ruby-parser "a \n b")
          [[:var_ref "a"]
           [:var_ref "b"]])))
+
+(deftest rewrite-mutating-assignment
+  (is (= (rewrite-assignment-mutate :var-name "+=" :arg)
+         [:assignment :var-name [:method_call [:var_ref :var-name] "+" :arg]])))
+
+(deftest rewrite-mutating-bracket-assignment
+  (is (= (rewrite-bracket-assignment-mutate :obj :idx "-=" :val)
+         [:method_call :obj "[]=" :idx
+          [:method_call
+           [:method_call :obj "[]" :idx]
+           "-"
+           :val]])))
