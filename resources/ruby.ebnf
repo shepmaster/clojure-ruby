@@ -1,5 +1,9 @@
 <program> = statement*
-<statement> = S method_call_infix_x S
+<statement> = S assignment_x S
+
+<assignment_x>   = assignment | method_call_infix_x
+assignment       = id assignment_rhs
+<assignment_rhs> = S <"="> S method_call_infix_x
 
 <method_call_infix_x> = method_call_infix | method_call_x
 method_call_infix     = method_call_infix_x S infix_symbol S method_call_infix_x
@@ -13,10 +17,7 @@ method_call                    = method_call_x <"."> id <"("> [statement (<","> 
 method_call_bracket            = method_call_x <"["> statement <"]">
 method_call_bracket_assignment = method_call_x <"["> statement <"]"> assignment_rhs
 
-<the_rest> = assignment | flow_control | literal | var_ref | grouping
-
-assignment       = id assignment_rhs
-<assignment_rhs> = S <"="> S statement
+<the_rest> = flow_control | literal | var_ref | grouping
 
 <flow_control> = if | while | until | case
 if             = <"if"> statement program (<"elsif"> statement program)* <"end">

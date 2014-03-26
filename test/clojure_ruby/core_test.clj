@@ -18,6 +18,15 @@
            "a"
            [:var_ref "b"]]])))
 
+(deftest assignment-and-method-call
+  (is (unambigous? "a = o.m()"))
+  (is (= (ruby-parser "a = o.m()")
+         [[:assignment
+           "a"
+           [:method_call
+            [:var_ref "o"]
+            "m"]]])))
+
 (deftest method-calls
   (is (unambigous? "alpha.beta()"))
   (is (= (ruby-parser "alpha.beta()")
