@@ -76,4 +76,11 @@
       (map evaluate body))))
 
 (defn evaluate-all [stmts]
-  (map evaluate stmts))
+  (when-let [[stmt & stmts] stmts]
+    (try
+      (prn stmt)
+      (evaluate stmt)
+      (catch Exception e
+        (let [[start end] (insta/span stmt)]
+          (throw (RuntimeException. (str "evaluation failed; [" start ", " end "]") e)))))
+    (recur stmts)))
