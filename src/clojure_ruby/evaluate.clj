@@ -1,6 +1,6 @@
 (ns clojure-ruby.evaluate
   (:require [clojure-ruby.messaging :as msg]
-            [clojure-ruby.corelib :refer :all]))
+            [clojure-ruby.corelib :as core]))
 
 (declare evaluate)
 (defmulti evaluate-one (fn [vars stmt] (first stmt)))
@@ -24,11 +24,11 @@
 
 (defmethod evaluate-one :number [variables stmt]
   (let [[_ val] stmt]
-    (create-number (Long. val))))
+    (core/create-number (Long. val))))
 
 (defmethod evaluate-one :string [variables stmt]
   (let [[_ val] stmt]
-    (create-string val)))
+    (core/create-string val)))
 
 (defmethod evaluate-one :if [variables stmt]
  (let [[_ & branches] stmt]
@@ -68,7 +68,7 @@
 
 (defn evaluate-all [stmts]
   (let [variables (atom {})]
-    (register-global-variables variables)
+    (core/register-global-variables variables)
     (loop [stmts stmts]
       (when-let [[stmt & stmts] stmts]
         (evaluate variables stmt)
