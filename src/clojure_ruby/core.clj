@@ -22,12 +22,10 @@
 
 (defmulti evaluate first)
 
-(defmethod evaluate :method_call_infix [stmt]
-  (let [[_ obj method arg] stmt
-        arg (evaluate arg)]
-    (assert (= :var_ref (first obj)))
-    (case method
-      "=" (swap! variables assoc (second obj) arg))))
+(defmethod evaluate :assignment [stmt]
+  (let [[_ name val] stmt
+        val (evaluate val)]
+    (swap! variables assoc name val)))
 
 (defn rb-send [obj method-name args]
   (if-let [meth (get-in obj [:methods method-name])]
@@ -40,14 +38,13 @@
       var
       (throw (RuntimeException. (str "Cannot find variable [" name "]"))))))
 
-(defmethod evaluate :method_call_args [stmt]
+(defmethod evaluate :method_call [stmt]
   (let [[_ obj method & args] stmt
         obj (evaluate obj)
         args (map evaluate args)]
     (rb-send obj method args)))
 
-(defmethod evaluate :method_call_naked [stmt]
-  ;; Duplication!
+(defmethod evaluate :method_call_infix [stmt]
   (let [[_ obj method & args] stmt
         obj (evaluate obj)
         args (map evaluate args)]
