@@ -134,6 +134,15 @@
   (let [[_ val] stmt]
     (create-string val)))
 
+(defmethod evaluate-one :if [stmt]
+ (let [[_ & branches] stmt]
+   (loop [branches branches]
+     (if-let [[branch & branches] branches]
+       (let [[_ predicate & body] branch]
+         (if (evaluate predicate)
+           (mapv evaluate body)
+           (recur branches)))))))
+
 (defmethod evaluate-one :while [stmt]
   (let [[_ predicate & body] stmt]
     (while (evaluate predicate)
