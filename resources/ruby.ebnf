@@ -1,5 +1,9 @@
-<program> = statement*
-<statement> = S assignment_x S
+<program>          = [statement] (<statement_term> statement)* <[statement_term]> [S]
+<statement>        = bare_statement
+<inline_statement> = bare_statement S
+<single_statement> = bare_statement <statement_term>
+<bare_statement>   = S assignment_x
+<statement_term>   = ES ("\n" | ";")
 
 <assignment_x>   = assignment | method_call_infix_x
 assignment       = id assignment_rhs
@@ -13,17 +17,20 @@ method_call_infix     = method_call_infix_x S infix_symbol S method_call_infix_x
                                  method_call_bracket |
                                  method_call_bracket_assignment |
                                  the_rest
-method_call                    = method_call_x <"."> id <"("> [statement (<","> statement)*] <")">
-method_call_bracket            = method_call_x <"["> statement <"]">
-method_call_bracket_assignment = method_call_x <"["> statement <"]"> assignment_rhs
+method_call                    = method_call_x <"."> id [arglist]
+method_call_bracket            = method_call_x <"["> arg <"]">
+method_call_bracket_assignment = method_call_x <"["> arg <"]"> assignment_rhs
+<arglist>                      = <"("> [arg (<","> arg)*] <")">
+<arg>                          = inline_statement
 
 <the_rest> = flow_control | literal | var_ref | grouping
 
 <flow_control> = if | while | until | case
-if             = <"if"> statement program (<"elsif"> statement program)* <"end">
-while          = <"while"> statement program <"end">
-until          = <"until"> statement program <"end">
-case           = <"case"> statement (<"when"> statement program)+ <"end">
+if             = <"if"> predicate program (<"elsif"> predicate program)* <"end">
+while          = <"while"> predicate program <"end">
+until          = <"until"> predicate program <"end">
+case           = <"case"> predicate (S <"when"> predicate program)+ <"end">
+<predicate>    = single_statement
 keyword        = "if" | "elsif" | "while" | "until" | "case" | "when" | "end"
 
 <literal> = string | number
@@ -32,8 +39,9 @@ var_ref = id
 
 <id>      = !(literal | keyword) #"\w+"
 
-<S>       = <[ws]>
-ws        = #"\s+"
+(* Since whitespace gets scattered about, give them small, unimportant names *)
+<ES>      = <#"[ \t]*"> (* "Ending Space" *)
+<S>       = <#"\s*">
 
 number    = #"\d+"
 string    = <'"'> #"[^\"]+" <'"'>
