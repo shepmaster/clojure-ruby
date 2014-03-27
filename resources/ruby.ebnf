@@ -6,14 +6,18 @@
 <statement-term>   = NLES ("\n" | ";")
 <empty-statements> = <statement-term>* NLES
 
-<assignment-x>          = assignment
-                        | assignment-mutate
-                        | method-call-logic-x
-assignment              = id assignment-rhs
-assignment-mutate       = id assignment-mutate-rhs
-<assignment-rhs>        = NLES <"="> S method-call-logic-x
-<assignment-mutate-rhs> = NLES infix-mutator S method-call-logic-x
-<infix-mutator>         = "+=" | "-="
+<assignment-x>            = assignment
+                          | assignment-mutate
+                          | assignment-bracket
+                          | assignment-bracket-mutate
+                          | method-call-logic-x
+assignment                = id assignment-rhs
+assignment-mutate         = id assignment-mutate-rhs
+assignment-bracket        = bracket-common assignment-rhs
+assignment-bracket-mutate = bracket-common assignment-mutate-rhs
+<assignment-rhs>          = NLES <"="> S method-call-logic-x
+<assignment-mutate-rhs>   = NLES infix-mutator S method-call-logic-x
+<infix-mutator>           = "+=" | "-="
 
 <method-call-logic-x> = method-call-logic | method-call-relop-x
 method-call-logic     = method-call-logic-x NLES infix-symbol S method-call-logic-x
@@ -23,18 +27,14 @@ method-call-logic     = method-call-logic-x NLES infix-symbol S method-call-logi
 method-call-relop     = method-call-relop-x NLES relop-symbol S method-call-relop-x
 <relop-symbol>        = "<" | "==" | "!="
 
-<method-call-x>                       = method-call
-                                      | method-call-bracket
-                                      | method-call-bracket-assignment
-                                      | method-call-bracket-assignment-mutate
-                                      | the-rest
-method-call                           = method-call-x <"."> id [arglist]
-method-call-bracket                   = bracket-common
-method-call-bracket-assignment        = bracket-common assignment-rhs
-method-call-bracket-assignment-mutate = bracket-common assignment-mutate-rhs
-<bracket-common>                      = method-call-x <"["> arg <"]">
-<arglist>                             = <"("> [arg (<","> arg)*] <")">
-<arg>                                 = inline-statement
+<method-call-x>     = method-call
+                    | method-call-bracket
+                    | the-rest
+method-call         = method-call-x <"."> id [arglist]
+method-call-bracket = bracket-common
+<bracket-common>    = method-call-x <"["> arg <"]">
+<arglist>           = <"("> [arg (<","> arg)*] <")">
+<arg>               = inline-statement
 
 <the-rest> = flow-control | literal | var-ref | grouping
 

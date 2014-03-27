@@ -15,7 +15,7 @@
       real-meth
       val]]))
 
-(defn rewrite-bracket-assignment-mutate [obj idx meth val]
+(defn rewrite-assignment-bracket-mutate [obj idx meth val]
   (let [real-meth (mutating-method->real-method meth)]
     [:method-call obj "[]=" idx
      [:method-call
@@ -29,16 +29,16 @@
 (defn rename-bracket [obj idx]
   [:method-call obj "[]" idx])
 
-(defn rename-bracket-assignment [obj idx val]
+(defn rename-assignment-bracket [obj idx val]
   [:method-call obj "[]=" idx val])
 
 (def cleaning-map
   {:assignment-mutate rewrite-assignment-mutate
-   :method-call-bracket-assignment-mutate rewrite-bracket-assignment-mutate
+   :assignment-bracket rename-assignment-bracket
+   :assignment-bracket-mutate rewrite-assignment-bracket-mutate
    :method-call-logic rename-infix
    :method-call-relop rename-infix
-   :method-call-bracket rename-bracket
-   :method-call-bracket-assignment rename-bracket-assignment})
+   :method-call-bracket rename-bracket})
 
 (defn clean-parse-tree [tree]
   (insta/transform cleaning-map tree))

@@ -48,7 +48,13 @@
   (is (= (ruby-parser "a = b")
          [[:assignment
            "a"
-           [:var-ref "b"]]])))
+           [:var-ref "b"]]]))
+  (is (unambigous? "alpha[1] = 2"))
+  (is (= (ruby-parser "alpha[1] = 2")
+         [[:assignment-bracket
+           [:var-ref "alpha"]
+           [:number "1"]
+           [:number "2"]]])))
 
 (deftest mutating-assignment
   (is (unambigous?    "a += 1"))
@@ -56,16 +62,14 @@
          [[:assignment-mutate "a" "+=" [:number "1"]]]))
   (is (unambigous?    "a -= 1"))
   (is (= (ruby-parser "a -= 1")
-         [[:assignment-mutate "a" "-=" [:number "1"]]])))
-
-(deftest assignment-and-method-call
-  (is (unambigous? "a = o.m"))
-  (is (= (ruby-parser "a = o.m")
-         [[:assignment
-           "a"
-           [:method-call
-            [:var-ref "o"]
-            "m"]]])))
+         [[:assignment-mutate "a" "-=" [:number "1"]]]))
+  (is (unambigous?    "alpha[1] += 2"))
+  (is (= (ruby-parser "alpha[1] += 2")
+         [[:assignment-bracket-mutate
+           [:var-ref "alpha"]
+           [:number "1"]
+           "+="
+           [:number "2"]]])))
 
 (deftest method-calls
   (is (unambigous? "alpha.beta"))
@@ -93,25 +97,50 @@
          [[:method-call-bracket
            [:var-ref "alpha"]
            [:number "1"]]]))
-  (is (unambigous? "alpha[1] = 2"))
-  (is (= (ruby-parser "alpha[1] = 2")
-         [[:method-call-bracket-assignment
-           [:var-ref "alpha"]
-           [:number "1"]
-           [:number "2"]]]))
-  (is (unambigous?    "alpha[1] += 2"))
-  (is (= (ruby-parser "alpha[1] += 2")
-         [[:method-call-bracket-assignment-mutate
-           [:var-ref "alpha"]
-           [:number "1"]
-           "+="
-           [:number "2"]]]))
   (is (unambigous? "alpha < 4"))
   (is (= (ruby-parser "alpha < 4")
          [[:method-call-relop
            [:var-ref "alpha"]
            "<"
            [:number "4"]]])))
+
+(deftest logic-has-higher-precedence-than-assignment
+  (is (unambigous?    "a = b && c"))
+  (is (= (ruby-parser "a = b && c")
+         [[:assignment
+           "a"
+           [:method-call-logic
+            [:var-ref "b"]
+            "&&"
+            [:var-ref "c"]]]]))
+  (is (unambigous?    "a += b && c"))
+  (is (= (ruby-parser "a += b && c")
+         [[:assignment-mutate
+           "a"
+           "+="
+           [:method-call-logic
+            [:var-ref "b"]
+            "&&"
+            [:var-ref "c"]]]]))
+  (is (unambigous?    "a[b] = c && d"))
+  (is (= (ruby-parser "a[b] = c && d")
+         [[:assignment-bracket
+           [:var-ref "a"]
+           [:var-ref "b"]
+           [:method-call-logic
+            [:var-ref "c"]
+            "&&"
+            [:var-ref "d"]]]]))
+  (is (unambigous?    "a[b] += c && d"))
+  (is (= (ruby-parser "a[b] += c && d")
+         [[:assignment-bracket-mutate
+           [:var-ref "a"]
+           [:var-ref "b"]
+           "+="
+           [:method-call-logic
+            [:var-ref "c"]
+            "&&"
+            [:var-ref "d"]]]])))
 
 (deftest relational-operator-has-higher-precedence-than-logic-operator
   (is (unambigous?    "a < b && x == y"))
@@ -120,7 +149,6 @@
            [:method-call-relop [:var-ref "a"] "<" [:var-ref "b"]]
            "&&"
            [:method-call-relop [:var-ref "x"] "==" [:var-ref "y"]]]])))
-
 
 (deftest method-call-has-higher-precedence-than-relational-operator
   (is (unambigous? "alpha.beta < 4"))
@@ -194,7 +222,7 @@
          [:assignment :var-name [:method-call [:var-ref :var-name] "+" :arg]])))
 
 (deftest rewrite-mutating-bracket-assignment
-  (is (= (rewrite-bracket-assignment-mutate :obj :idx "-=" :val)
+  (is (= (rewrite-assignment-bracket-mutate :obj :idx "-=" :val)
          [:method-call :obj "[]=" :idx
           [:method-call
            [:method-call :obj "[]" :idx]
