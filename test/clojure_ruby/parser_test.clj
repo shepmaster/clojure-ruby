@@ -56,6 +56,15 @@
            [:number "1"]
            [:number "2"]]])))
 
+(deftest chained-assignment
+  (is (unambigous?    "a = b = 1"))
+  (is (= (ruby-parser "a = b = 1")
+         [[:assignment
+           "a"
+           [:assignment
+            "b"
+            [:number "1"]]]])))
+
 (deftest mutating-assignment
   (is (unambigous?    "a += 1"))
   (is (= (ruby-parser "a += 1")
@@ -70,6 +79,17 @@
            [:number "1"]
            "+="
            [:number "2"]]])))
+
+(deftest chained-mutating-assignment
+  (is (unambigous?    "a += b -= 1"))
+  (is (= (ruby-parser "a += b -= 1")
+         [[:assignment-mutate
+           "a"
+           "+="
+           [:assignment-mutate
+            "b"
+            "-="
+            [:number "1"]]]])))
 
 (deftest method-calls
   (is (unambigous? "alpha.beta"))

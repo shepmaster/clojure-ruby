@@ -15,8 +15,8 @@ assignment                = id assignment-rhs
 assignment-mutate         = id assignment-mutate-rhs
 assignment-bracket        = bracket-common assignment-rhs
 assignment-bracket-mutate = bracket-common assignment-mutate-rhs
-<assignment-rhs>          = NLES <"="> S method-call-logic-x
-<assignment-mutate-rhs>   = NLES mutator-symbol S method-call-logic-x
+<assignment-rhs>          = NLES <"="> S assignment-x
+<assignment-mutate-rhs>   = NLES mutator-symbol S assignment-x
 <mutator-symbol>          = "+=" | "-="
 
 <method-call-logic-x> = method-call-logic | method-call-relop-x
