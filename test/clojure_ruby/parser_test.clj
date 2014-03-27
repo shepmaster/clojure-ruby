@@ -109,8 +109,10 @@
            [:number "1"]]]))
   (is (unambigous?    "alpha.beta 1, 2"))
   (is (unambigous?    "alpha.beta(1, 2)"))
+  (is (unambigous?    "alpha.beta(\n 1 \n , \n 2 \n)"))
   (is (= (ruby-parser "alpha.beta(1, 2)")
          (ruby-parser "alpha.beta 1, 2")
+         (ruby-parser "alpha.beta(\n 1 \n , \n 2 \n)")
          [[:method-call
            [:var-ref "alpha"]
            "beta"

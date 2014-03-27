@@ -37,7 +37,7 @@ method-call         = method-call-x <"."> id
 method-call-bracket = bracket-common
 <bracket-common>    = method-call-x <"["> arg <"]">
 <paren-arglist>     = <"("> [arg (<","> arg)*] <")">
-<arg>               = NLES primary-expr S
+<arg>               = S primary-expr S
 <no-paren-arglist>  = NLES primary-expr NLES (<","> S primary-expr)*
 
 <the-rest> = flow-control | literal | var-ref | grouping
