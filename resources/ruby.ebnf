@@ -48,15 +48,15 @@ when           = <empty-statements> <"when"> predicate program
 <predicate>    = single-statement
 keyword        = "if" | "elsif" | "while" | "until" | "case" | "when" | "end"
 
-<literal> = string | number
-var-ref = id
+<literal>  = string | number
+string     = <'"'> #"[^\"]+" <'"'>
+number     = #"\d+"
+
+var-ref    = id
 <grouping> = <"("> statement <")">
 
-<id>      = !keyword #"[a-zA-Z_]\w*"
+<id>       = !keyword #"[a-zA-Z_]\w*"
 
 (* Since whitespace gets scattered about, give them smallish, unimportant names *)
 <NLES>    = <#"[ \t]*"> (* "Non Line-Ending Space" *)
 <S>       = <#"\s*">
-
-number    = #"\d+"
-string    = <'"'> #"[^\"]+" <'"'>
