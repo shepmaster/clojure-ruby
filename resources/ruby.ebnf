@@ -52,7 +52,7 @@ keyword        = "if" | "elsif" | "while" | "until" | "case" | "when" | "end"
 var-ref = id
 <grouping> = <"("> statement <")">
 
-<id>      = !(literal | keyword) #"\w+"
+<id>      = !keyword #"[a-zA-Z_]\w*"
 
 (* Since whitespace gets scattered about, give them smallish, unimportant names *)
 <NLES>    = <#"[ \t]*"> (* "Non Line-Ending Space" *)
