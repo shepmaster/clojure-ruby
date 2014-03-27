@@ -2,24 +2,25 @@
 <statement>        = bare-statement
 <inline-statement> = bare-statement S
 <single-statement> = bare-statement <statement-term>
-<bare-statement>   = S assignment-x
-<statement-term>   = ES ("\n" | ";")
+<bare-statement>   = NLES assignment-x
+<statement-term>   = NLES ("\n" | ";")
+<empty-statements> = <statement-term>* NLES
 
 <assignment-x>          = assignment |
                           assignment-mutate |
                           method-call-logic-x
 assignment              = id assignment-rhs
 assignment-mutate       = id assignment-mutate-rhs
-<assignment-rhs>        = S <"="> S method-call-logic-x
-<assignment-mutate-rhs> = S infix-mutator S method-call-logic-x
+<assignment-rhs>        = NLES <"="> S method-call-logic-x
+<assignment-mutate-rhs> = NLES infix-mutator S method-call-logic-x
 <infix-mutator>         = "+=" | "-="
 
 <method-call-logic-x> = method-call-logic | method-call-relop-x
-method-call-logic     = method-call-logic-x S infix-symbol S method-call-logic-x
+method-call-logic     = method-call-logic-x NLES infix-symbol S method-call-logic-x
 <infix-symbol>        = "&&"
 
 <method-call-relop-x> = method-call-relop | method-call-x
-method-call-relop     = method-call-relop-x S relop-symbol S method-call-relop-x
+method-call-relop     = method-call-relop-x NLES relop-symbol S method-call-relop-x
 <relop-symbol>        = "<" | "==" | "!="
 
 <method-call-x>                       = method-call |
@@ -43,7 +44,7 @@ if-branch      = predicate program
 while          = <"while"> predicate program <"end">
 until          = <"until"> predicate program <"end">
 case           = <"case"> predicate when+ <"end">
-when           = S <"when"> predicate program
+when           = <empty-statements> <"when"> predicate program
 <predicate>    = single-statement
 keyword        = "if" | "elsif" | "while" | "until" | "case" | "when" | "end"
 
@@ -53,8 +54,8 @@ var-ref = id
 
 <id>      = !(literal | keyword) #"\w+"
 
-(* Since whitespace gets scattered about, give them small, unimportant names *)
-<ES>      = <#"[ \t]*"> (* "Ending Space" *)
+(* Since whitespace gets scattered about, give them smallish, unimportant names *)
+<NLES>    = <#"[ \t]*"> (* "Non Line-Ending Space" *)
 <S>       = <#"\s*">
 
 number    = #"\d+"

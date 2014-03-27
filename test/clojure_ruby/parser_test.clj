@@ -171,7 +171,9 @@
 
 (deftest flow-case
   (is (unambigous? "case 1; when 1; 2; end"))
+  (is (unambigous? "case 1 ;;; when 1 ;;; 2 ;;; end"))
   (is (= (ruby-parser "case 1; when 1; 2; end")
+         (ruby-parser "case 1 ;;; when 1 ;;; 2 ;;; end")
          [[:case [:number "1"]
            [:when
             [:number "1"]
