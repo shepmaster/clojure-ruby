@@ -118,11 +118,21 @@
            "beta"
            [:number "1"]
            [:number "2"]]]))
-  (is (unambigous? "alpha[1]"))
+  (is (unambigous?    "alpha[]"))
+  (is (= (ruby-parser "alpha[]")
+         [[:method-call-bracket
+           [:var-ref "alpha"]]]))
+  (is (unambigous?    "alpha[1]"))
   (is (= (ruby-parser "alpha[1]")
          [[:method-call-bracket
            [:var-ref "alpha"]
            [:number "1"]]]))
+  (is (unambigous?    "alpha[1, 2]"))
+  (is (= (ruby-parser "alpha[1, 2]")
+         [[:method-call-bracket
+           [:var-ref "alpha"]
+           [:number "1"]
+           [:number "2"]]]))
   (is (unambigous? "alpha < 4"))
   (is (= (ruby-parser "alpha < 4")
          [[:method-call-relop

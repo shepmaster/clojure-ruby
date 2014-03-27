@@ -35,8 +35,9 @@ method-call         = method-call-x <"."> id
                     | method-call-x <"."> id paren-arglist
                     | method-call-x <"."> id no-paren-arglist
 method-call-bracket = bracket-common
-<bracket-common>    = method-call-x <"["> arg <"]">
-<paren-arglist>     = <"("> [arg (<","> arg)*] <")">
+<bracket-common>    = method-call-x <"["> [args] <"]">
+<paren-arglist>     = <"("> [args] <")">
+<args>              = arg (<","> arg)*
 <arg>               = S primary-expr S
 <no-paren-arglist>  = NLES primary-expr NLES (<","> S primary-expr)*
 
