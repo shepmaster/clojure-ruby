@@ -6,6 +6,23 @@
 (defn unambigous? [code]
   (= 1 (count (insta/parses ruby-parser code))))
 
+(deftest the-vast-emptiness
+  (is (unambigous? ""))
+  (is (unambigous? " "))
+  (is (unambigous? "\t"))
+  (is (unambigous? "\n"))
+  (is (unambigous? " \t\n"))
+  (is (unambigous? "\n\n"))
+  (is (unambigous? ";;;"))
+  (is (=  (ruby-parser "")
+          (ruby-parser " ")
+          (ruby-parser "\t")
+          (ruby-parser "\n")
+          (ruby-parser " \t\n")
+          (ruby-parser "\n\n")
+          (ruby-parser ";;;")
+          [])))
+
 (deftest extra-space
   (is (unambigous? "a"))
   (is (unambigous? " a"))
