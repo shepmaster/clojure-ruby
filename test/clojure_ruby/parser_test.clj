@@ -92,21 +92,25 @@
             [:number "1"]]]])))
 
 (deftest method-calls
-  (is (unambigous? "alpha.beta"))
-  (is (unambigous? "alpha.beta()"))
+  (is (unambigous?    "alpha.beta"))
+  (is (unambigous?    "alpha.beta()"))
   (is (= (ruby-parser "alpha.beta")
          (ruby-parser "alpha.beta()")
          [[:method-call
            [:var-ref "alpha"]
            "beta"]]))
-  (is (unambigous? "alpha.beta(1)"))
+  (is (unambigous?    "alpha.beta(1)"))
+  (is (unambigous?    "alpha.beta 1"))
   (is (= (ruby-parser "alpha.beta(1)")
+         (ruby-parser "alpha.beta 1")
          [[:method-call
            [:var-ref "alpha"]
            "beta"
            [:number "1"]]]))
-  (is (unambigous? "alpha.beta(1, 2)"))
+  (is (unambigous?    "alpha.beta 1, 2"))
+  (is (unambigous?    "alpha.beta(1, 2)"))
   (is (= (ruby-parser "alpha.beta(1, 2)")
+         (ruby-parser "alpha.beta 1, 2")
          [[:method-call
            [:var-ref "alpha"]
            "beta"

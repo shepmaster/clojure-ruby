@@ -1,10 +1,11 @@
 <program>          = [statement] (<statement-term> [statement])* <[statement-term]> S
 <statement>        = bare-statement
-<inline-statement> = bare-statement S
 <single-statement> = bare-statement <statement-term>
-<bare-statement>   = NLES assignment-x
+<bare-statement>   = NLES primary-expr
 <statement-term>   = NLES ("\n" | ";")
 <empty-statements> = <statement-term>* NLES
+
+<primary-expr> = assignment-x
 
 <assignment-x>            = assignment
                           | assignment-mutate
@@ -30,11 +31,14 @@ method-call-relop     = method-call-relop-x NLES relop-symbol S method-call-relo
 <method-call-x>     = method-call
                     | method-call-bracket
                     | the-rest
-method-call         = method-call-x <"."> id [arglist]
+method-call         = method-call-x <"."> id
+                    | method-call-x <"."> id paren-arglist
+                    | method-call-x <"."> id no-paren-arglist
 method-call-bracket = bracket-common
 <bracket-common>    = method-call-x <"["> arg <"]">
-<arglist>           = <"("> [arg (<","> arg)*] <")">
-<arg>               = inline-statement
+<paren-arglist>     = <"("> [arg (<","> arg)*] <")">
+<arg>               = NLES primary-expr S
+<no-paren-arglist>  = NLES primary-expr NLES (<","> S primary-expr)*
 
 <the-rest> = flow-control | literal | var-ref | grouping
 
