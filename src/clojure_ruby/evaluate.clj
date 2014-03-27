@@ -3,6 +3,10 @@
             [clojure-ruby.corelib :as core]))
 
 (declare evaluate)
+
+(defn evaluate-body [variables body]
+  (mapv (partial evaluate variables) body))
+
 (defmulti evaluate-one (fn [vars stmt] (first stmt)))
 
 (defmethod evaluate-one :assignment [variables stmt]
@@ -36,18 +40,18 @@
      (if-let [[branch & branches] branches]
        (let [[_ predicate & body] branch]
          (if (msg/host (evaluate variables predicate) :boolean)
-           (mapv (partial evaluate variables) body)
+           (evaluate-body variables body)
            (recur branches)))))))
 
 (defmethod evaluate-one :while [variables stmt]
   (let [[_ predicate & body] stmt]
     (while (msg/host (evaluate variables predicate) :boolean)
-      (mapv (partial evaluate variables) body))))
+      (evaluate-body variables body))))
 
 (defmethod evaluate-one :until [variables stmt]
   (let [[_ predicate & body] stmt]
     (while (not (msg/host (evaluate variables predicate) :boolean))
-      (mapv (partial evaluate variables) body))))
+      (evaluate-body variables body))))
 
 (defmethod evaluate-one :case [variables stmt]
   (let [[_ predicate & whens] stmt
@@ -57,7 +61,7 @@
         (let [[_ matcher & body] when
               matcher (evaluate variables matcher)]
           (if (msg/host (msg/ruby predicate "===" [matcher]) :boolean)
-            (mapv (partial evaluate variables) body)
+            (evaluate-body variables body)
             (recur whens)))))))
 
 (defn evaluate [variables stmt]
