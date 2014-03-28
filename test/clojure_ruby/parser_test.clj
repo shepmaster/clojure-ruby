@@ -283,6 +283,13 @@
          [[:reference "a"]
           [:reference "b"]])))
 
+(deftest literal-strings
+  (is (unambigous? "'hello'"))
+  (is (unambigous? "\"hello\""))
+  (is (= (ruby-parser "'hello'")
+         (ruby-parser "\"hello\"")
+         [[:string "hello"]])))
+
 (deftest rewrite-bracket
   (is (= (rename-bracket :obj)
          [:method-call :obj "[]"]))

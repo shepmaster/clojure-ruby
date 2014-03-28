@@ -60,6 +60,7 @@ def-keyword = "def" | "end"
 
 <literal>  = string | number
 string     = <'"'> #"[^\"]+" <'"'>
+           | <"'"> #"[^\']+" <"'">
 number     = #"\d+"
 
 reference  = id
