@@ -33,10 +33,13 @@ method-call-no-parens     = method-call-no-parens-x <"."> id no-paren-arglist
 <no-paren-arglist>        = !grouping NLES primary-expr NLES (<","> S primary-expr)*
 
 <method-call-x>     = method-call
+                    | method-call-self
                     | method-call-bracket
                     | the-rest
 method-call         = method-call-x <"."> id
                     | method-call-x <"."> id paren-arglist
+method-call-self    = id paren-arglist
+                    | id no-paren-arglist
 method-call-bracket = bracket-common
 <bracket-common>    = method-call-x <"["> [args] <"]">
 <paren-arglist>     = <"("> [args] <")">

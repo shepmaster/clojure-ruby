@@ -106,7 +106,18 @@
            [:number "1"]
            [:number "2"]]])))
 
-(deftest method-calls
+(deftest implict-object-method-calls
+  (is (unambigous?    "a()"))
+  (is (= (ruby-parser "a()")
+         [[:method-call-self
+           "a"]]))
+  (is (unambigous?    "a(1)"))
+  (is (= (ruby-parser "a(1)")
+         [[:method-call-self
+           "a"
+           [:number "1"]]])))
+
+(deftest object-method-calls
   (is (unambigous?    "alpha.beta"))
   (is (unambigous?    "alpha.beta()"))
   (is (= (ruby-parser "alpha.beta")
