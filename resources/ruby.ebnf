@@ -70,7 +70,7 @@ number     = #"\d+"
 reference  = id
 <grouping> = <"("> statement <")">
 
-keyword = flow-keyword def-keyword
+keyword = flow-keyword | def-keyword
 <id>    = !keyword #"[a-zA-Z_]\w*"
 
 (* Since whitespace gets scattered about, give them smallish, unimportant names *)
