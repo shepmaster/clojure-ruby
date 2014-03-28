@@ -35,8 +35,8 @@
     (create-boolean (= (:data this) other))))
 
 (defn number-not-equal [this other]
-  (let [other (msg/host other :number)]
-    (create-boolean (not= (:data this) other))))
+  (let [eq (msg/ruby this "==" [other])]
+    (create-boolean (not (msg/host eq :boolean)))))
 
 (defn number-host-number [this]
   (:data this))
