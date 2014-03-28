@@ -4,74 +4,74 @@
 
 (declare evaluate)
 
-(defn evaluate-body [variables body]
-  (mapv (partial evaluate variables) body))
+(defn evaluate-body [system body]
+  (mapv (partial evaluate system) body))
 
 (defmulti evaluate-one (fn [vars stmt] (first stmt)))
 
-(defmethod evaluate-one :assignment [variables stmt]
+(defmethod evaluate-one :assignment [system stmt]
   (let [[_ name val] stmt
-        val (evaluate variables val)]
-    (swap! variables assoc name val)))
+        val (evaluate system val)]
+    (swap! (:variables system) assoc name val)))
 
-(defmethod evaluate-one :var-ref [variables stmt]
+(defmethod evaluate-one :var-ref [system stmt]
   (let [[_ name] stmt]
-    (if-let [var (get @variables name)]
+    (if-let [var (get @(:variables system) name)]
       var
       (throw (ex-info "Cannot find variable" {:name name})))))
 
-(defmethod evaluate-one :method-call [variables stmt]
+(defmethod evaluate-one :method-call [system stmt]
   (let [[_ obj method & args] stmt
-        obj (evaluate variables obj)
-        args (map (partial evaluate variables) args)]
+        obj (evaluate system obj)
+        args (map (partial evaluate system) args)]
     (msg/ruby obj method args)))
 
-(defmethod evaluate-one :number [variables stmt]
+(defmethod evaluate-one :number [system stmt]
   (let [[_ val] stmt]
     (core/create-number (Long. val))))
 
-(defmethod evaluate-one :string [variables stmt]
+(defmethod evaluate-one :string [system stmt]
   (let [[_ val] stmt]
     (core/create-string val)))
 
-(defmethod evaluate-one :if [variables stmt]
+(defmethod evaluate-one :if [system stmt]
  (let [[_ & branches] stmt]
    (loop [branches branches]
      (if-let [[branch & branches] branches]
        (let [[_ predicate & body] branch]
-         (if (msg/host (evaluate variables predicate) :boolean)
-           (evaluate-body variables body)
+         (if (msg/host (evaluate system predicate) :boolean)
+           (evaluate-body system body)
            (recur branches)))))))
 
-(defmethod evaluate-one :while [variables stmt]
+(defmethod evaluate-one :while [system stmt]
   (let [[_ predicate & body] stmt]
-    (while (msg/host (evaluate variables predicate) :boolean)
-      (evaluate-body variables body))))
+    (while (msg/host (evaluate system predicate) :boolean)
+      (evaluate-body system body))))
 
-(defmethod evaluate-one :until [variables stmt]
+(defmethod evaluate-one :until [system stmt]
   (let [[_ predicate & body] stmt]
-    (while (not (msg/host (evaluate variables predicate) :boolean))
-      (evaluate-body variables body))))
+    (while (not (msg/host (evaluate system predicate) :boolean))
+      (evaluate-body system body))))
 
-(defmethod evaluate-one :case [variables stmt]
+(defmethod evaluate-one :case [system stmt]
   (let [[_ predicate & whens] stmt
-        predicate (evaluate variables predicate)]
+        predicate (evaluate system predicate)]
     (loop [whens whens]
       (if-let [[when & whens] (seq whens)]
         (let [[_ matcher & body] when
-              matcher (evaluate variables matcher)]
+              matcher (evaluate system matcher)]
           (if (msg/host (msg/ruby predicate "===" [matcher]) :boolean)
-            (evaluate-body variables body)
+            (evaluate-body system body)
             (recur whens)))))))
 
-(defn evaluate [variables stmt]
+(defn evaluate [system stmt]
   (try
-    (evaluate-one variables stmt)
+    (evaluate-one system stmt)
     (catch Exception e
       (throw (ex-info "Evaluation failed" {:statement stmt} e)))))
 
 (defn evaluate-all [stmts]
-  (let [variables (atom {})]
-    (core/register-global-variables variables)
+  (let [system {:variables (atom {})}]
+    (core/register-global-variables (:variables system))
     (doseq [stmt stmts]
-      (evaluate variables stmt))))
+      (evaluate system stmt))))
