@@ -43,7 +43,7 @@ method-call-bracket = bracket-common
 <args>              = arg (<","> arg)*
 <arg>               = S primary-expr S
 
-<the-rest> = flow-control | literal | var-ref | grouping
+<the-rest> = flow-control | method-def | literal | var-ref | grouping
 
 <flow-control> = if | while | until | case
 if             = <"if"> if-branch (<"elsif"> if-branch)* <"end">
@@ -53,7 +53,10 @@ until          = <"until"> predicate program <"end">
 case           = <"case"> predicate when+ <"end">
 when           = <empty-statements> <"when"> predicate program
 <predicate>    = single-statement
-keyword        = "if" | "elsif" | "while" | "until" | "case" | "when" | "end"
+flow-keyword   = "if" | "elsif" | "while" | "until" | "case" | "when" | "end"
+
+method-def = <"def"> S id program <"end">
+def-keyword = "def" | "end"
 
 <literal>  = string | number
 string     = <'"'> #"[^\"]+" <'"'>
@@ -62,7 +65,8 @@ number     = #"\d+"
 var-ref    = id
 <grouping> = <"("> statement <")">
 
-<id>       = !keyword #"[a-zA-Z_]\w*"
+keyword = flow-keyword def-keyword
+<id>    = !keyword #"[a-zA-Z_]\w*"
 
 (* Since whitespace gets scattered about, give them smallish, unimportant names *)
 <NLES>    = <#"[ \t]*"> (* "Non Line-Ending Space" *)

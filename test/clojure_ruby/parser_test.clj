@@ -264,6 +264,15 @@
             [:number "1"]
             [:number "2"]]]])))
 
+(deftest method-definition
+  (is (unambigous?    "def foo; end"))
+  (is (= (ruby-parser "def foo; end")
+         [[:method-def "foo"]]))
+  (is (unambigous?    "def foo; a; end"))
+  (is (= (ruby-parser "def foo; a; end")
+         [[:method-def "foo"
+           [:var-ref "a"]]])))
+
 (deftest multiple-statements
   (is (unambigous? "a;b"))
   (is (unambigous? "a\nb"))
