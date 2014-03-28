@@ -43,7 +43,7 @@ method-call-bracket = bracket-common
 <args>              = arg (<","> arg)*
 <arg>               = S primary-expr S
 
-<the-rest> = flow-control | method-def | literal | var-ref | grouping
+<the-rest> = flow-control | method-def | literal | reference | grouping
 
 <flow-control> = if | while | until | case
 if             = <"if"> if-branch (<"elsif"> if-branch)* <"end">
@@ -62,7 +62,7 @@ def-keyword = "def" | "end"
 string     = <'"'> #"[^\"]+" <'"'>
 number     = #"\d+"
 
-var-ref    = id
+reference  = id
 <grouping> = <"("> statement <")">
 
 keyword = flow-keyword def-keyword

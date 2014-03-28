@@ -14,7 +14,7 @@
         val (evaluate system val)]
     (swap! (:variables system) assoc name val)))
 
-(defmethod evaluate-one :var-ref [system stmt]
+(defmethod evaluate-one :reference [system stmt]
   (let [[_ name] stmt]
     (if-let [var (get @(:variables system) name)]
       var

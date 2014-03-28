@@ -11,7 +11,7 @@
   (let [real-meth (mutating-method->real-method meth)]
     [:assignment var-name
      [:method-call
-      [:var-ref var-name]
+      [:reference var-name]
       real-meth
       val]]))
 
