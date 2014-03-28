@@ -26,8 +26,8 @@
        ~real-meth
        ~val]]))
 
-(defn rename-infix [obj meth arg]
-  [:method-call obj meth arg])
+(defn rename-method-call-alias [& body]
+  `[:method-call ~@body])
 
 (defn rename-bracket [obj & idxs]
   `[:method-call ~obj "[]" ~@idxs])
@@ -39,8 +39,9 @@
   {:assignment-mutate rewrite-assignment-mutate
    :assignment-bracket rename-assignment-bracket
    :assignment-bracket-mutate rewrite-assignment-bracket-mutate
-   :method-call-logic rename-infix
-   :method-call-relop rename-infix
+   :method-call-no-parens rename-method-call-alias
+   :method-call-logic rename-method-call-alias
+   :method-call-relop rename-method-call-alias
    :method-call-bracket rename-bracket})
 
 (defn clean-parse-tree [tree]
