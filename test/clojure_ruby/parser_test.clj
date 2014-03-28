@@ -277,7 +277,9 @@
 
 (deftest method-definition
   (is (unambigous?    "def foo; end"))
+  (is (unambigous?    "def foo(); end"))
   (is (= (ruby-parser "def foo; end")
+         (ruby-parser "def foo(); end")
          [[:method-def "foo"
            [:method-def-args]]]))
   (is (unambigous?    "def foo; a; end"))
