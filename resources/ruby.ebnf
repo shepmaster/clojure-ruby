@@ -24,22 +24,24 @@ assignment-bracket-mutate = bracket-common assignment-mutate-rhs
 method-call-logic     = method-call-logic-x NLES logic-symbol S method-call-logic-x
 <logic-symbol>        = "&&"
 
-<method-call-relop-x> = method-call-relop | method-call-x
+<method-call-relop-x> = method-call-relop | method-call-no-parens-x
 method-call-relop     = method-call-relop-x NLES relop-symbol S method-call-relop-x
 <relop-symbol>        = "<" | "==" | "!="
+
+<method-call-no-parens-x> = method-call-no-parens | method-call-x
+method-call-no-parens     = method-call-no-parens-x <"."> id no-paren-arglist
+<no-paren-arglist>        = !grouping NLES primary-expr NLES (<","> S primary-expr)*
 
 <method-call-x>     = method-call
                     | method-call-bracket
                     | the-rest
 method-call         = method-call-x <"."> id
                     | method-call-x <"."> id paren-arglist
-                    | method-call-x <"."> id no-paren-arglist
 method-call-bracket = bracket-common
 <bracket-common>    = method-call-x <"["> [args] <"]">
 <paren-arglist>     = <"("> [args] <")">
 <args>              = arg (<","> arg)*
 <arg>               = S primary-expr S
-<no-paren-arglist>  = NLES primary-expr NLES (<","> S primary-expr)*
 
 <the-rest> = flow-control | literal | var-ref | grouping
 

@@ -91,6 +91,21 @@
             "-="
             [:number "1"]]]])))
 
+(deftest method-calls-without-parens
+  (is (unambigous?    "alpha.beta 1"))
+  (is (= (ruby-parser "alpha.beta 1")
+         [[:method-call-no-parens
+           [:var-ref "alpha"]
+           "beta"
+           [:number "1"]]]))
+  (is (unambigous?    "alpha.beta 1, 2"))
+  (is (= (ruby-parser "alpha.beta 1, 2")
+         [[:method-call-no-parens
+           [:var-ref "alpha"]
+           "beta"
+           [:number "1"]
+           [:number "2"]]])))
+
 (deftest method-calls
   (is (unambigous?    "alpha.beta"))
   (is (unambigous?    "alpha.beta()"))
@@ -100,18 +115,14 @@
            [:var-ref "alpha"]
            "beta"]]))
   (is (unambigous?    "alpha.beta(1)"))
-  (is (unambigous?    "alpha.beta 1"))
   (is (= (ruby-parser "alpha.beta(1)")
-         (ruby-parser "alpha.beta 1")
          [[:method-call
            [:var-ref "alpha"]
            "beta"
            [:number "1"]]]))
-  (is (unambigous?    "alpha.beta 1, 2"))
   (is (unambigous?    "alpha.beta(1, 2)"))
   (is (unambigous?    "alpha.beta(\n 1 \n , \n 2 \n)"))
   (is (= (ruby-parser "alpha.beta(1, 2)")
-         (ruby-parser "alpha.beta 1, 2")
          (ruby-parser "alpha.beta(\n 1 \n , \n 2 \n)")
          [[:method-call
            [:var-ref "alpha"]
@@ -203,6 +214,16 @@
            [:method-call
             [:var-ref "gamma"]
             "delta"]]])))
+
+(deftest method-call-has-higher-precedence-than-method-call-with-no-parens
+  (is (unambigous?    "a.b c[d]"))
+  (is (= (ruby-parser "a.b c[d]")
+         [[:method-call-no-parens
+           [:var-ref "a"]
+           "b"
+           [:method-call-bracket
+            [:var-ref "c"]
+            [:var-ref "d"]]]])))
 
 (deftest flow-if
   (is (unambigous?    "if 1; o.m; 10; end"))
