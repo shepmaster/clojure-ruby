@@ -15,22 +15,25 @@
       real-meth
       val]]))
 
-(defn rewrite-assignment-bracket-mutate [obj idx meth val]
-  (let [real-meth (mutating-method->real-method meth)]
-    [:method-call obj "[]=" idx
-     [:method-call
-      [:method-call obj "[]" idx]
-      real-meth
-      val]]))
+(defn rewrite-assignment-bracket-mutate [obj & idxs-meth-and-val]
+  (let [rev-tail (reverse idxs-meth-and-val)
+        [val meth & rev-idxs] rev-tail
+        idxs (reverse rev-idxs)
+        real-meth (mutating-method->real-method meth)]
+    `[:method-call ~obj "[]=" ~@idxs
+      [:method-call
+       [:method-call ~obj "[]" ~@idxs]
+       ~real-meth
+       ~val]]))
 
 (defn rename-infix [obj meth arg]
   [:method-call obj meth arg])
 
-(defn rename-bracket [obj idx]
-  [:method-call obj "[]" idx])
+(defn rename-bracket [obj & idxs]
+  `[:method-call ~obj "[]" ~@idxs])
 
-(defn rename-assignment-bracket [obj idx val]
-  [:method-call obj "[]=" idx val])
+(defn rename-assignment-bracket [obj & idxs-and-val]
+  `[:method-call ~obj "[]=" ~@idxs-and-val])
 
 (def cleaning-map
   {:assignment-mutate rewrite-assignment-mutate

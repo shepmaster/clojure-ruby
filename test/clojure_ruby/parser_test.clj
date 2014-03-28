@@ -253,14 +253,42 @@
          [[:var-ref "a"]
           [:var-ref "b"]])))
 
+(deftest rewrite-bracket
+  (is (= (rename-bracket :obj)
+         [:method-call :obj "[]"]))
+  (is (= (rename-bracket :obj :idx)
+         [:method-call :obj "[]" :idx]))
+  (is (= (rename-bracket :obj :idx1 :idx2)
+         [:method-call :obj "[]" :idx1 :idx2])))
+
+(deftest rewrite-bracket-assignment
+  (is (= (rename-assignment-bracket :obj :val)
+         [:method-call :obj "[]=" :val]))
+  (is (= (rename-assignment-bracket :obj :idx :val)
+         [:method-call :obj "[]=" :idx :val]))
+  (is (= (rename-assignment-bracket :obj :idx1 :idx2 :val)
+         [:method-call :obj "[]=" :idx1 :idx2 :val])))
+
 (deftest rewrite-mutating-assignment
   (is (= (rewrite-assignment-mutate :var-name "+=" :arg)
          [:assignment :var-name [:method-call [:var-ref :var-name] "+" :arg]])))
 
 (deftest rewrite-mutating-bracket-assignment
+  (is (= (rewrite-assignment-bracket-mutate :obj "-=" :val)
+         [:method-call :obj "[]="
+          [:method-call
+           [:method-call :obj "[]"]
+           "-"
+           :val]]))
   (is (= (rewrite-assignment-bracket-mutate :obj :idx "-=" :val)
          [:method-call :obj "[]=" :idx
           [:method-call
            [:method-call :obj "[]" :idx]
+           "-"
+           :val]]))
+  (is (= (rewrite-assignment-bracket-mutate :obj :idx1 :idx2 "-=" :val)
+         [:method-call :obj "[]=" :idx1 :idx2
+          [:method-call
+           [:method-call :obj "[]" :idx1 :idx2]
            "-"
            :val]])))
