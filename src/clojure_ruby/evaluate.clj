@@ -67,7 +67,7 @@
             (recur whens)))))))
 
 (defmethod evaluate-one :method-def [system stmt]
-  (let [[_ name & body] stmt]
+  (let [[_ name args & body] stmt]
     (swap! (:methods system) assoc name body)))
 
 (defn evaluate [system stmt]

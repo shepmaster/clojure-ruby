@@ -267,11 +267,25 @@
 (deftest method-definition
   (is (unambigous?    "def foo; end"))
   (is (= (ruby-parser "def foo; end")
-         [[:method-def "foo"]]))
+         [[:method-def "foo"
+           [:method-def-args]]]))
   (is (unambigous?    "def foo; a; end"))
   (is (= (ruby-parser "def foo; a; end")
          [[:method-def "foo"
-           [:reference "a"]]])))
+           [:method-def-args]
+           [:reference "a"]]]))
+  (is (unambigous?    "def foo(a); end"))
+  (is (unambigous?    "def foo(\na\n); end"))
+  (is (= (ruby-parser "def foo(a); end")
+         (ruby-parser "def foo(\na\n); end")
+         [[:method-def "foo"
+           [:method-def-args "a"]]]))
+  (is (unambigous?    "def foo(a, b); end"))
+  (is (unambigous?    "def foo(\na\n,\nb\n); end"))
+  (is (= (ruby-parser "def foo(a, b); end")
+         (ruby-parser "def foo(\na\n,\nb\n); end")
+         [[:method-def "foo"
+           [:method-def-args "a" "b"]]])))
 
 (deftest multiple-statements
   (is (unambigous? "a;b"))
