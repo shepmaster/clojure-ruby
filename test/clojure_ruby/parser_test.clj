@@ -318,6 +318,14 @@
          (ruby-parser "\"hello\"")
          [[:string "hello"]])))
 
+(deftest rename-self-method-call
+  (is (= (rename-method-call-self :meth)
+         [:method-call [:reference "self"] :meth]))
+  (is (= (rename-method-call-self :meth :arg)
+         [:method-call [:reference "self"] :meth :arg]))
+  (is (= (rename-method-call-self :meth :arg1 :arg2)
+         [:method-call [:reference "self"] :meth :arg1 :arg2])))
+
 (deftest rewrite-bracket
   (is (= (rename-bracket :obj)
          [:method-call :obj "[]"]))

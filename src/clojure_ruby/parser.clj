@@ -29,6 +29,9 @@
 (defn rename-method-call-alias [& body]
   `[:method-call ~@body])
 
+(defn rename-method-call-self [& body]
+  `[:method-call [:reference "self"] ~@body])
+
 (defn rename-bracket [obj & idxs]
   `[:method-call ~obj "[]" ~@idxs])
 
@@ -42,6 +45,7 @@
    :method-call-no-parens rename-method-call-alias
    :method-call-logic rename-method-call-alias
    :method-call-relop rename-method-call-alias
+   :method-call-self rename-method-call-self
    :method-call-bracket rename-bracket})
 
 (defn clean-parse-tree [tree]
