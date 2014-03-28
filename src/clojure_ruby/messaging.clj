@@ -1,5 +1,8 @@
 (ns clojure-ruby.messaging)
 
+(defn type? [obj type]
+  (= type (:type obj)))
+
 (defn host [obj method-sym & args]
   (if-let [meth (get-in obj [:host-methods method-sym])]
     (apply meth obj args)

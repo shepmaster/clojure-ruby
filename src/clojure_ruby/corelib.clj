@@ -48,7 +48,8 @@
              "-" number-minus
              "==" number-equal
              "!=" number-not-equal}
-   :host-methods {:number number-host-number}})
+   :host-methods {:number number-host-number}
+   :type :number})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -74,7 +75,8 @@
              "[]" string-bracket
              "==" string-equal
              "===" string-equal}
-   :host-methods {:string string-host-string}})
+   :host-methods {:string string-host-string}
+   :type :string})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -109,9 +111,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn STDOUT-putc [this char-int]
-  (let [char-int (msg/host char-int :number)]
-    (print (char char-int))))
+(defn STDOUT-putc [this obj]
+  (let [s (if (msg/type? obj :string)
+            (msg/host obj :string)
+            (char (msg/host obj :number)))]
+    (print s)))
 
 (def STDOUT
   {:methods {"putc" STDOUT-putc}})
