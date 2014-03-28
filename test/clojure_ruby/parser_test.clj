@@ -276,14 +276,17 @@
            [:reference "a"]]]))
   (is (unambigous?    "def foo(a); end"))
   (is (unambigous?    "def foo(\na\n); end"))
+  (is (unambigous?    "def foo a; end"))
   (is (= (ruby-parser "def foo(a); end")
          (ruby-parser "def foo(\na\n); end")
+         (ruby-parser "def foo a; end")
          [[:method-def "foo"
            [:method-def-args "a"]]]))
   (is (unambigous?    "def foo(a, b); end"))
   (is (unambigous?    "def foo(\na\n,\nb\n); end"))
+  (is (unambigous?    "def foo a , b ; end"))
   (is (= (ruby-parser "def foo(a, b); end")
-         (ruby-parser "def foo(\na\n,\nb\n); end")
+         (ruby-parser "def foo a , b ; end")
          [[:method-def "foo"
            [:method-def-args "a" "b"]]])))
 

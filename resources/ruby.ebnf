@@ -58,6 +58,7 @@ flow-keyword   = "if" | "elsif" | "while" | "until" | "case" | "when" | "end"
 method-def      = <"def"> S id method-def-args program <"end">
 method-def-args = <statement-term>
                 | <"("> def-arg (<","> def-arg)* <")">
+                | NLES id NLES (<","> S id NLES)* <statement-term>
 <def-arg>       = S id S
 def-keyword     = "def" | "end"
 
