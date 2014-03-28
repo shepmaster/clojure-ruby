@@ -18,7 +18,9 @@
   (let [[_ name] stmt]
     (if-let [var (get @(:variables system) name)]
       var
-      (throw (ex-info "Cannot find variable" {:name name})))))
+      (if-let [meth (get @(:methods system) name)]
+        (evaluate-body system meth)
+        (throw (ex-info "Cannot find variable or method" {:name name}))))))
 
 (defmethod evaluate-one :method-call [system stmt]
   (let [[_ obj method & args] stmt
@@ -64,6 +66,10 @@
             (evaluate-body system body)
             (recur whens)))))))
 
+(defmethod evaluate-one :method-def [system stmt]
+  (let [[_ name & body] stmt]
+    (swap! (:methods system) assoc name body)))
+
 (defn evaluate [system stmt]
   (try
     (evaluate-one system stmt)
@@ -71,7 +77,7 @@
       (throw (ex-info "Evaluation failed" {:statement stmt} e)))))
 
 (defn evaluate-all [stmts]
-  (let [system {:variables (atom {})}]
+  (let [system {:variables (atom {}), :methods (atom {})}]
     (core/register-global-variables (:variables system))
     (doseq [stmt stmts]
       (evaluate system stmt))))
