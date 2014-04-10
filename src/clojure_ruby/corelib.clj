@@ -1,4 +1,5 @@
 (ns clojure-ruby.corelib
+  (:require [clojure-ruby.variables :as var])
   (:require [clojure-ruby.evaluate :as eval]))
 
 (defn type? [obj type]
@@ -134,6 +135,7 @@
   (host-msg obj :boolean))
 
 (def global-variables
-  {"Array" Array
-   "File" File
-   "STDOUT" STDOUT})
+  (-> (var/create-vars)
+      (var/add-binding "Array" Array)
+      (var/add-binding "File" File)
+      (var/add-binding "STDOUT" STDOUT)))

@@ -1,4 +1,5 @@
-(ns clojure-ruby.evaluate)
+(ns clojure-ruby.evaluate
+  (:require [clojure-ruby.variables :as var]))
 
 (declare evaluate)
 
@@ -20,13 +21,13 @@
 (defmethod evaluate-one :assignment [system stmt]
   (let [[_ name val] stmt
         val (evaluate system val)]
-    (swap! (:variables system) assoc name val)))
+    (swap! (:variables system) var/add-binding name val)))
 
 (defmethod evaluate-one :reference [system stmt]
   (let [[_ name] stmt]
-    (if-let [var (get @(:variables system) name)]
+    (if-let [var (var/get-binding @(:variables system) name)]
       var
-      (let [self (get @(:variables system) "self")]
+      (let [self (var/get-binding @(:variables system) "self")]
         (if (method-lookup self name)
           (ruby-msg system self name [])
           (throw (ex-info "Cannot find variable or method" {:name name})))))))
@@ -83,7 +84,7 @@
 
 (defmethod evaluate-one :method-def [system stmt]
   (let [[_ name args & body] stmt]
-    (swap! (:variables system) assoc-in ["self" :methods name] body)))
+    (swap! (:variables system) var/add-method "self" name body)))
 
 (defn evaluate [system stmt]
   (try
