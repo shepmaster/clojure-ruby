@@ -1,10 +1,14 @@
-(ns clojure-ruby.evaluate
-  (:require [clojure-ruby.messaging :as msg]))
+(ns clojure-ruby.evaluate)
 
 (declare evaluate)
 
 (defn evaluate-body [system body]
   (mapv (partial evaluate system) body))
+
+(defn ruby-msg [system obj method-name args]
+  (if-let [meth (get-in obj [:methods method-name])]
+    (apply meth system obj args)
+    (throw (ex-info "Method lookup failed" {:object obj, :method method-name}))))
 
 (defmulti evaluate-one (fn [vars stmt] (first stmt)))
 
@@ -25,7 +29,7 @@
   (let [[_ obj method & args] stmt
         obj (evaluate system obj)
         args (map (partial evaluate system) args)]
-    (msg/ruby system obj method args)))
+    (ruby-msg system obj method args)))
 
 (defmethod evaluate-one :number [system stmt]
   (let [[_ val] stmt
@@ -67,7 +71,7 @@
       (if-let [[when & whens] (seq whens)]
         (let [[_ matcher & body] when
               matcher (evaluate system matcher)]
-          (if (as-host-boolean (msg/ruby system predicate "===" [matcher]))
+          (if (as-host-boolean (ruby-msg system predicate "===" [matcher]))
             (evaluate-body system body)
             (recur whens)))))))
 

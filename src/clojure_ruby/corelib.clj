@@ -1,5 +1,5 @@
 (ns clojure-ruby.corelib
-  (:require [clojure-ruby.messaging :as msg]))
+  (:require [clojure-ruby.evaluate :as eval]))
 
 (defn type? [obj type]
   (= type (:type obj)))
@@ -43,7 +43,7 @@
     (create-boolean (= (:data this) other))))
 
 (defn number-not-equal [system this other]
-  (let [eq (msg/ruby system this "==" [other])]
+  (let [eq (eval/ruby-msg system this "==" [other])]
     (create-boolean (not (host-msg eq :boolean)))))
 
 (defn number-host-number [this]
