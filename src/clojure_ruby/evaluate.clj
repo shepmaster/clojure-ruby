@@ -26,7 +26,7 @@
   (let [[_ obj method & args] stmt
         obj (evaluate system obj)
         args (map (partial evaluate system) args)]
-    (msg/ruby obj method args)))
+    (msg/ruby system obj method args)))
 
 (defmethod evaluate-one :number [system stmt]
   (let [[_ val] stmt]
@@ -62,7 +62,7 @@
       (if-let [[when & whens] (seq whens)]
         (let [[_ matcher & body] when
               matcher (evaluate system matcher)]
-          (if (msg/host (msg/ruby predicate "===" [matcher]) :boolean)
+          (if (msg/host (msg/ruby system predicate "===" [matcher]) :boolean)
             (evaluate-body system body)
             (recur whens)))))))
 

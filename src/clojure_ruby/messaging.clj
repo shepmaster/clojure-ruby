@@ -8,7 +8,7 @@
     (apply meth obj args)
     (throw (ex-info "Host method lookup failed" {:object obj, :method method-sym}))))
 
-(defn ruby [obj method-name args]
+(defn ruby [system obj method-name args]
   (if-let [meth (get-in obj [:methods method-name])]
-    (apply meth obj args)
+    (apply meth system obj args)
     (throw (ex-info "Method lookup failed" {:object obj, :method method-name}))))

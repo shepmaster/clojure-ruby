@@ -4,11 +4,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def global-true
-  {:methods {"&&" (fn true-and [this other] other)}
+  {:methods {"&&" (fn true-and [system this other] other)}
    :host-methods {:boolean (fn true-host-boolean [this] true)}})
 
 (def global-false
-  {:methods {"&&" (fn false-and [this other] this)}
+  {:methods {"&&" (fn false-and [system this other] this)}
    :host-methods {:boolean (fn false-host-boolean [this] false)}})
 
 (defn create-boolean [v]
@@ -18,24 +18,24 @@
 
 (declare create-number)
 
-(defn number-lt [this other]
+(defn number-lt [system this other]
   (let [other (msg/host other :number)]
     (create-boolean (< (:data this) other))))
 
-(defn number-plus [this other]
+(defn number-plus [system this other]
   (let [other (msg/host other :number)]
     (create-number (+ (:data this) other))))
 
-(defn number-minus [this other]
+(defn number-minus [system this other]
   (let [other (msg/host other :number)]
     (create-number (- (:data this) other))))
 
-(defn number-equal [this other]
+(defn number-equal [system this other]
   (let [other (msg/host other :number)]
     (create-boolean (= (:data this) other))))
 
-(defn number-not-equal [this other]
-  (let [eq (msg/ruby this "==" [other])]
+(defn number-not-equal [system this other]
+  (let [eq (msg/ruby system this "==" [other])]
     (create-boolean (not (msg/host eq :boolean)))))
 
 (defn number-host-number [this]
@@ -55,14 +55,14 @@
 
 (declare create-string)
 
-(defn string-size [this]
+(defn string-size [system this]
   (create-number (count (:data this))))
 
-(defn string-bracket [this idx]
+(defn string-bracket [system this idx]
   (let [idx (msg/host idx :number)]
     (create-string (subs (:data this) idx (inc idx)))))
 
-(defn string-equal [this other]
+(defn string-equal [system this other]
   (let [other (msg/host other :string)]
     (create-boolean (= (:data this) other))))
 
@@ -80,11 +80,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn array-bracket [this idx]
+(defn array-bracket [system this idx]
   (let [idx (msg/host idx :number)]
     (nth @(:data this) idx)))
 
-(defn array-bracket-assign [this idx val]
+(defn array-bracket-assign [system this idx val]
   (let [idx (msg/host idx :number)]
     (swap! (:data this) assoc idx val)))
 
@@ -93,7 +93,7 @@
    :methods {"[]" array-bracket
              "[]=" array-bracket-assign}})
 
-(defn Array-new [this cnt val]
+(defn Array-new [system this cnt val]
   (let [cnt (msg/host cnt :number)]
     (create-array cnt val)))
 
@@ -102,7 +102,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn File-read [this name]
+(defn File-read [system this name]
   (let [name (msg/host name :string)]
     (create-string (slurp name))))
 
@@ -111,7 +111,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn STDOUT-putc [this obj]
+(defn STDOUT-putc [system this obj]
   (let [s (if (msg/type? obj :string)
             (msg/host obj :string)
             (char (msg/host obj :number)))]
