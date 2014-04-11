@@ -1,6 +1,5 @@
 (ns clojure-ruby.evaluate
-  (:require [clojure-ruby.messaging :as msg]
-            [clojure-ruby.corelib :as core]))
+  (:require [clojure-ruby.messaging :as msg]))
 
 (declare evaluate)
 
@@ -29,12 +28,14 @@
     (msg/ruby system obj method args)))
 
 (defmethod evaluate-one :number [system stmt]
-  (let [[_ val] stmt]
-    (core/create-number (Long. val))))
+  (let [[_ val] stmt
+        {:keys [create-number]} system]
+    (create-number (Long. val))))
 
 (defmethod evaluate-one :string [system stmt]
-  (let [[_ val] stmt]
-    (core/create-string val)))
+  (let [[_ val] stmt
+        {:keys [create-string]} system]
+    (create-string val)))
 
 (defmethod evaluate-one :if [system stmt]
  (let [[_ & branches] stmt]
@@ -76,8 +77,10 @@
     (catch Exception e
       (throw (ex-info "Evaluation failed" {:statement stmt} e)))))
 
-(defn evaluate-all [stmts]
-  (let [system {:variables (atom {}), :methods (atom {})}]
-    (core/register-global-variables (:variables system))
+(defn evaluate-all [create-string create-number initial-variables stmts]
+  (let [system {:variables (atom initial-variables)
+                :methods (atom {})
+                :create-string create-string
+                :create-number create-number}]
     (doseq [stmt stmts]
       (evaluate system stmt))))

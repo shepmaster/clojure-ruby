@@ -122,7 +122,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn register-global-variables [variables]
-  (swap! variables merge {"Array" Array
-                          "File" File
-                          "STDOUT" STDOUT}))
+(def global-variables
+  {"Array" Array
+   "File" File
+   "STDOUT" STDOUT})
