@@ -38,32 +38,36 @@
     (create-string val)))
 
 (defmethod evaluate-one :if [system stmt]
- (let [[_ & branches] stmt]
+ (let [[_ & branches] stmt
+       {:keys [as-host-boolean]} system]
    (loop [branches branches]
      (if-let [[branch & branches] branches]
        (let [[_ predicate & body] branch]
-         (if (msg/host (evaluate system predicate) :boolean)
+         (if (as-host-boolean (evaluate system predicate))
            (evaluate-body system body)
            (recur branches)))))))
 
 (defmethod evaluate-one :while [system stmt]
-  (let [[_ predicate & body] stmt]
-    (while (msg/host (evaluate system predicate) :boolean)
+  (let [[_ predicate & body] stmt
+        {:keys [as-host-boolean]} system]
+    (while (as-host-boolean (evaluate system predicate))
       (evaluate-body system body))))
 
 (defmethod evaluate-one :until [system stmt]
-  (let [[_ predicate & body] stmt]
-    (while (not (msg/host (evaluate system predicate) :boolean))
+  (let [[_ predicate & body] stmt
+        {:keys [as-host-boolean]} system]
+    (while (not (as-host-boolean (evaluate system predicate)))
       (evaluate-body system body))))
 
 (defmethod evaluate-one :case [system stmt]
   (let [[_ predicate & whens] stmt
-        predicate (evaluate system predicate)]
+        predicate (evaluate system predicate)
+        {:keys [as-host-boolean]} system]
     (loop [whens whens]
       (if-let [[when & whens] (seq whens)]
         (let [[_ matcher & body] when
               matcher (evaluate system matcher)]
-          (if (msg/host (msg/ruby system predicate "===" [matcher]) :boolean)
+          (if (as-host-boolean (msg/ruby system predicate "===" [matcher]))
             (evaluate-body system body)
             (recur whens)))))))
 
@@ -77,10 +81,11 @@
     (catch Exception e
       (throw (ex-info "Evaluation failed" {:statement stmt} e)))))
 
-(defn evaluate-all [create-string create-number initial-variables stmts]
+(defn evaluate-all [create-string create-number as-host-boolean initial-variables stmts]
   (let [system {:variables (atom initial-variables)
                 :methods (atom {})
                 :create-string create-string
-                :create-number create-number}]
+                :create-number create-number
+                :as-host-boolean as-host-boolean}]
     (doseq [stmt stmts]
       (evaluate system stmt))))

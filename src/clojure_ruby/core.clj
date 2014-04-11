@@ -7,7 +7,7 @@
   (->> ruby-str
        parse/ruby-parser
        parse/clean-parse-tree
-       (eval/evaluate-all lib/create-string lib/create-number lib/global-variables)))
+       (eval/evaluate-all lib/create-string lib/create-number lib/as-host-boolean lib/global-variables)))
 
 (defn -main [& args]
   (let [filename (or (first args) "example.rb")

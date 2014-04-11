@@ -1,6 +1,14 @@
 (ns clojure-ruby.corelib
   (:require [clojure-ruby.messaging :as msg]))
 
+(defn type? [obj type]
+  (= type (:type obj)))
+
+(defn host-msg [obj method-sym & args]
+  (if-let [meth (get-in obj [:host-methods method-sym])]
+    (apply meth obj args)
+    (throw (ex-info "Host method lookup failed" {:object obj, :method method-sym}))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def global-true
@@ -19,24 +27,24 @@
 (declare create-number)
 
 (defn number-lt [system this other]
-  (let [other (msg/host other :number)]
+  (let [other (host-msg other :number)]
     (create-boolean (< (:data this) other))))
 
 (defn number-plus [system this other]
-  (let [other (msg/host other :number)]
+  (let [other (host-msg other :number)]
     (create-number (+ (:data this) other))))
 
 (defn number-minus [system this other]
-  (let [other (msg/host other :number)]
+  (let [other (host-msg other :number)]
     (create-number (- (:data this) other))))
 
 (defn number-equal [system this other]
-  (let [other (msg/host other :number)]
+  (let [other (host-msg other :number)]
     (create-boolean (= (:data this) other))))
 
 (defn number-not-equal [system this other]
   (let [eq (msg/ruby system this "==" [other])]
-    (create-boolean (not (msg/host eq :boolean)))))
+    (create-boolean (not (host-msg eq :boolean)))))
 
 (defn number-host-number [this]
   (:data this))
@@ -59,11 +67,11 @@
   (create-number (count (:data this))))
 
 (defn string-bracket [system this idx]
-  (let [idx (msg/host idx :number)]
+  (let [idx (host-msg idx :number)]
     (create-string (subs (:data this) idx (inc idx)))))
 
 (defn string-equal [system this other]
-  (let [other (msg/host other :string)]
+  (let [other (host-msg other :string)]
     (create-boolean (= (:data this) other))))
 
 (defn string-host-string [this]
@@ -81,11 +89,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn array-bracket [system this idx]
-  (let [idx (msg/host idx :number)]
+  (let [idx (host-msg idx :number)]
     (nth @(:data this) idx)))
 
 (defn array-bracket-assign [system this idx val]
-  (let [idx (msg/host idx :number)]
+  (let [idx (host-msg idx :number)]
     (swap! (:data this) assoc idx val)))
 
 (defn create-array [cnt val]
@@ -94,7 +102,7 @@
              "[]=" array-bracket-assign}})
 
 (defn Array-new [system this cnt val]
-  (let [cnt (msg/host cnt :number)]
+  (let [cnt (host-msg cnt :number)]
     (create-array cnt val)))
 
 (def Array
@@ -103,7 +111,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn File-read [system this name]
-  (let [name (msg/host name :string)]
+  (let [name (host-msg name :string)]
     (create-string (slurp name))))
 
 (def File
@@ -112,15 +120,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn STDOUT-putc [system this obj]
-  (let [s (if (msg/type? obj :string)
-            (msg/host obj :string)
-            (char (msg/host obj :number)))]
+  (let [s (if (type? obj :string)
+            (host-msg obj :string)
+            (char (host-msg obj :number)))]
     (print s)))
 
 (def STDOUT
   {:methods {"putc" STDOUT-putc}})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn as-host-boolean [obj]
+  (host-msg obj :boolean))
 
 (def global-variables
   {"Array" Array
