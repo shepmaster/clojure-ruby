@@ -5,9 +5,14 @@
 (defn evaluate-body [system body]
   (mapv (partial evaluate system) body))
 
+(defn method-lookup [obj method-name]
+  (get-in obj [:methods method-name]))
+
 (defn ruby-msg [system obj method-name args]
-  (if-let [meth (get-in obj [:methods method-name])]
-    (apply meth system obj args)
+  (if-let [meth (method-lookup obj method-name)]
+    (if (fn? meth)
+      (apply meth system obj args)
+      (evaluate-body system meth))
     (throw (ex-info "Method lookup failed" {:object obj, :method method-name}))))
 
 (defmulti evaluate-one (fn [vars stmt] (first stmt)))
@@ -21,9 +26,10 @@
   (let [[_ name] stmt]
     (if-let [var (get @(:variables system) name)]
       var
-      (if-let [meth (get @(:methods system) name)]
-        (evaluate-body system meth)
-        (throw (ex-info "Cannot find variable or method" {:name name}))))))
+      (let [self (get @(:variables system) "self")]
+        (if (method-lookup self name)
+          (ruby-msg system self name [])
+          (throw (ex-info "Cannot find variable or method" {:name name})))))))
 
 (defmethod evaluate-one :method-call [system stmt]
   (let [[_ obj method & args] stmt
@@ -77,7 +83,7 @@
 
 (defmethod evaluate-one :method-def [system stmt]
   (let [[_ name args & body] stmt]
-    (swap! (:methods system) assoc name body)))
+    (swap! (:variables system) assoc-in ["self" :methods name] body)))
 
 (defn evaluate [system stmt]
   (try
@@ -87,7 +93,6 @@
 
 (defn evaluate-all [create-string create-number as-host-boolean initial-variables stmts]
   (let [system {:variables (atom initial-variables)
-                :methods (atom {})
                 :create-string create-string
                 :create-number create-number
                 :as-host-boolean as-host-boolean}]
