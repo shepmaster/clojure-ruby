@@ -11,4 +11,6 @@
   (is (= (stdout-of "if 1 < 2; STDOUT.putc 66; end")
          "B"))
   (is (= (stdout-of "def foo; STDOUT.putc 'C'; end; foo")
-         "C")))
+         "C"))
+  (is (= (stdout-of "def foo x; STDOUT.putc x; end; foo 'D'")
+         "D")))
