@@ -303,6 +303,11 @@
          [[:method-def "foo"
            [:method-def-args "a" "b"]]])))
 
+(deftest class-definition
+  (is (unambigous? "class Alpha; end"))
+  (is (= (ruby-parser "class Alpha; end")
+         [[:class-def "Alpha"]])))
+
 (deftest multiple-statements
   (is (unambigous? "a;b"))
   (is (unambigous? "a\nb"))

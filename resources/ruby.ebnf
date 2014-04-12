@@ -46,7 +46,7 @@ method-call-bracket = bracket-common
 <args>              = arg (<","> arg)*
 <arg>               = S primary-expr S
 
-<the-rest> = flow-control | method-def | literal | reference | grouping
+<the-rest> = flow-control | method-def | class-def | literal | reference | grouping
 
 <flow-control> = if | while | until | case
 if             = <"if"> if-branch (<"elsif"> if-branch)* <"end">
@@ -63,7 +63,8 @@ method-def-args = <statement-term>
                 | <"("> [def-arg (<","> def-arg)*] <")">
                 | NLES id NLES (<","> S id NLES)* <statement-term>
 <def-arg>       = S id S
-def-keyword     = "def" | "end"
+class-def       = <"class"> S id program <"end">
+def-keyword     = "def" | "class" | "end"
 
 <literal>  = string | number
 string     = <'"'> #"[^\"]+" <'"'>
