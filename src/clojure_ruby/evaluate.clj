@@ -4,7 +4,7 @@
 (declare evaluate)
 
 (defn evaluate-body [system body]
-  (mapv (partial evaluate system) body))
+  (last (mapv (partial evaluate system) body)))
 
 (defn method-lookup [obj method-name]
   (get-in obj [:methods method-name]))
