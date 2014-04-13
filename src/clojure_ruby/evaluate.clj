@@ -38,6 +38,9 @@
 (defn get-self [system]
   (var/get-binding @(:variables system) "self"))
 
+(defn set-self [system obj]
+  (swap! (:variables system) var/add-binding "self" obj))
+
 (defmethod evaluate-one :reference [system stmt]
   (let [[_ name] stmt]
     (if-let [var (var/get-binding @(:variables system) name)]
@@ -102,6 +105,16 @@
     (let [clz-name (-> system get-self :class)]
       (swap! (:variables system)
              var/add-method clz-name name {:arg-defs (rest args), :body body}))))
+
+(defmethod evaluate-one :class-def [system stmt]
+  (let [[_ name & body] stmt]
+    (let [clz-obj {:methods {"new" (fn [system this] {:class name})}}
+          _ (swap! (:variables system) var/add-binding name clz-obj)
+          old-self (get-self system)
+          _ (set-self system {:class name})
+          r (evaluate-body system body)
+          _ (set-self system old-self)]
+      r)))
 
 (defn evaluate [system stmt]
   (try

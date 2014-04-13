@@ -15,4 +15,6 @@
   (is (= (stdout-of "def foo x; STDOUT.putc x; end; foo 'D'")
          "D"))
   (is (= (stdout-of "def foo; 'E'; end; STDOUT.putc foo")
-         "E")))
+         "E"))
+  (is (= (stdout-of "class Foo; def bar; 'F'; end; end; f = Foo.new; STDOUT.putc f.bar")
+         "F")))
