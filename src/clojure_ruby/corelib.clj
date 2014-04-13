@@ -140,7 +140,11 @@
     (print s)))
 
 (def STDOUT
-  {:methods {"putc" STDOUT-putc}})
+  {:class "RubyIO"
+   :methods {"putc" STDOUT-putc}})
+
+(def RubyIO
+  {})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -161,4 +165,5 @@
       (var/add-binding "RubyString" RubyString)
       (var/add-binding "Array" Array)
       (var/add-binding "File" File)
+      (var/add-binding "RubyIO" RubyIO)
       (var/add-binding "STDOUT" STDOUT)))
