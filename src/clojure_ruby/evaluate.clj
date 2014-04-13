@@ -109,7 +109,8 @@
 (defmethod evaluate-one :class-def [system stmt]
   (let [[_ name & body] stmt]
     (let [clz-obj {:methods {"new" (fn [system this] {:class name})}}
-          _ (swap! (:variables system) var/add-binding name clz-obj)
+          _ (when-not (var/get-binding @(:variables system) name)
+              (swap! (:variables system) var/add-binding name clz-obj))
           old-self (get-self system)
           _ (set-self system {:class name})
           r (evaluate-body system body)
