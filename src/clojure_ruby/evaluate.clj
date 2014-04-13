@@ -6,8 +6,10 @@
 (defn evaluate-body [system body]
   (last (mapv (partial evaluate system) body)))
 
-(defn method-lookup [obj method-name]
-  (get-in obj [:methods method-name]))
+(defn method-lookup [system obj method-name]
+  (or (get-in obj [:methods method-name])
+      (let [clz (var/get-binding @(:variables system) (:class obj))]
+        (get-in clz [:instance-methods method-name]))))
 
 (defn bind-arguments [vars arg-defns args]
   (reduce #(apply var/add-binding %1 %2) vars (map list arg-defns args)))
@@ -20,7 +22,7 @@
     r))
 
 (defn ruby-msg [system obj method-name args]
-  (if-let [meth (method-lookup obj method-name)]
+  (if-let [meth (method-lookup system obj method-name)]
     (if (fn? meth)
       (apply meth system obj args)
       (ruby-defined-method-call system meth args))
@@ -38,7 +40,7 @@
     (if-let [var (var/get-binding @(:variables system) name)]
       var
       (let [self (var/get-binding @(:variables system) "self")]
-        (if (method-lookup self name)
+        (if (method-lookup system self name)
           (ruby-msg system self name [])
           (throw (ex-info "Cannot find variable or method" {:name name})))))))
 

@@ -13,12 +13,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def global-true
-  {:methods {"&&" (fn true-and [system this other] other)}
+  {:class "TrueClass"
    :host-methods {:boolean (fn true-host-boolean [this] true)}})
 
 (def global-false
-  {:methods {"&&" (fn false-and [system this other] this)}
+  {:class "FalseClass"
    :host-methods {:boolean (fn false-host-boolean [this] false)}})
+
+(def TrueClass
+  {:instance-methods {"&&" (fn true-and [system this other] other)}})
+
+(def FalseClass
+  {:instance-methods {"&&" (fn false-and [system this other] this)}})
 
 (defn create-boolean [v]
   (if v global-true global-false))
@@ -52,13 +58,16 @@
 
 (defn create-number [n]
   {:data n
-   :methods {"<" number-lt
-             "+" number-plus
-             "-" number-minus
-             "==" number-equal
-             "!=" number-not-equal}
+   :class "RubyNumber"
    :host-methods {:number number-host-number}
    :type :number})
+
+(def RubyNumber
+  {:instance-methods {"<" number-lt
+                      "+" number-plus
+                      "-" number-minus
+                      "==" number-equal
+                      "!=" number-not-equal}})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -80,12 +89,15 @@
 
 (defn create-string [s]
   {:data s
-   :methods {"size" string-size
-             "[]" string-bracket
-             "==" string-equal
-             "===" string-equal}
+   :class "RubyString"
    :host-methods {:string string-host-string}
    :type :string})
+
+(def RubyString
+  {:instance-methods {"size" string-size
+                      "[]" string-bracket
+                      "==" string-equal
+                      "===" string-equal}})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -99,15 +111,16 @@
 
 (defn create-array [cnt val]
   {:data (atom (vec (repeat cnt val)))
-   :methods {"[]" array-bracket
-             "[]=" array-bracket-assign}})
+   :class "Array"})
 
 (defn Array-new [system this cnt val]
   (let [cnt (host-msg cnt :number)]
     (create-array cnt val)))
 
 (def Array
-  {:methods {"new" Array-new}})
+  {:methods {"new" Array-new}
+   :instance-methods {"[]" array-bracket
+                      "[]=" array-bracket-assign}})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -136,6 +149,10 @@
 
 (def global-variables
   (-> (var/create-vars)
+      (var/add-binding "TrueClass" TrueClass)
+      (var/add-binding "FalseClass" FalseClass)
+      (var/add-binding "RubyNumber" RubyNumber)
+      (var/add-binding "RubyString" RubyString)
       (var/add-binding "Array" Array)
       (var/add-binding "File" File)
       (var/add-binding "STDOUT" STDOUT)))
