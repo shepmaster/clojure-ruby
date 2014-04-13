@@ -23,4 +23,10 @@
                      f = Foo.new
                      STDOUT.putc f.bar
                      STDOUT.putc f.baz")
-         "GH")))
+         "GH"))
+  (is (= (stdout-of "class Foo; def bar; 'I'; end; end
+                     class Foo; def baz; bar; end; end
+                     f = Foo.new
+                     STDOUT.putc f.baz")
+         "I"))
+)

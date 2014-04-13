@@ -14,9 +14,10 @@
 (defn bind-arguments [vars arg-defns args]
   (reduce #(apply var/add-binding %1 %2) vars (map list arg-defns args)))
 
-(defn ruby-defined-method-call [system method args]
+(defn ruby-defined-method-call [system method obj args]
   (let [_ (swap! (:variables system) var/push-bindings)
         _ (swap! (:variables system) bind-arguments (:arg-defs method) args)
+        _ (swap! (:variables system) var/add-binding "self" obj)
         r (evaluate-body system (:body method))
         _ (swap! (:variables system) var/pop-bindings)]
     r))
@@ -25,7 +26,7 @@
   (if-let [meth (method-lookup system obj method-name)]
     (if (fn? meth)
       (apply meth system obj args)
-      (ruby-defined-method-call system meth args))
+      (ruby-defined-method-call system meth obj args))
     (throw (ex-info "Method lookup failed" {:object obj, :method method-name}))))
 
 (defmulti evaluate-one (fn [vars stmt] (first stmt)))
