@@ -26,7 +26,7 @@
           value
           (recur stack)))))
   (add-method [this obj-name method-name method-body]
-    (update-top-bindings this assoc-in [obj-name :methods method-name] method-body))
+    (update-top-bindings this assoc-in [obj-name :instance-methods method-name] method-body))
   (push-bindings [this]
     (update-in this [:stack] conj {}))
   (pop-bindings [this]

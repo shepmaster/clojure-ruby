@@ -35,11 +35,14 @@
         val (evaluate system val)]
     (swap! (:variables system) var/add-binding name val)))
 
+(defn get-self [system]
+  (var/get-binding @(:variables system) "self"))
+
 (defmethod evaluate-one :reference [system stmt]
   (let [[_ name] stmt]
     (if-let [var (var/get-binding @(:variables system) name)]
       var
-      (let [self (var/get-binding @(:variables system) "self")]
+      (let [self (get-self system)]
         (if (method-lookup system self name)
           (ruby-msg system self name [])
           (throw (ex-info "Cannot find variable or method" {:name name})))))))
@@ -96,7 +99,9 @@
 
 (defmethod evaluate-one :method-def [system stmt]
   (let [[_ name args & body] stmt]
-    (swap! (:variables system) var/add-method "self" name {:arg-defs (rest args), :body body})))
+    (let [clz-name (-> system get-self :class)]
+      (swap! (:variables system)
+             var/add-method clz-name name {:arg-defs (rest args), :body body}))))
 
 (defn evaluate [system stmt]
   (try
@@ -105,7 +110,8 @@
       (throw (ex-info "Evaluation failed" {:statement stmt} e)))))
 
 (defn evaluate-all [create-string create-number as-host-boolean initial-variables stmts]
-  (let [system {:variables (atom initial-variables)
+  (let [variables (var/add-binding initial-variables "self" {:class "RubyObject"})
+        system {:variables (atom variables)
                 :create-string create-string
                 :create-number create-number
                 :as-host-boolean as-host-boolean}]

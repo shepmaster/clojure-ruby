@@ -11,7 +11,7 @@
   (is (= :body (-> (create-vars)
                    (add-method "object" "method" :body)
                    (get-binding "object")
-                   (get-in [:methods "method"])))))
+                   (get-in [:instance-methods "method"])))))
 
 (deftest shadowing
   (is (= 3 (-> (create-vars)

@@ -144,11 +144,17 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(def RubyObject
+  {})
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn as-host-boolean [obj]
   (host-msg obj :boolean))
 
 (def global-variables
   (-> (var/create-vars)
+      (var/add-binding "RubyObject" RubyObject)
       (var/add-binding "TrueClass" TrueClass)
       (var/add-binding "FalseClass" FalseClass)
       (var/add-binding "RubyNumber" RubyNumber)
