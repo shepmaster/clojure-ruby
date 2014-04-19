@@ -124,11 +124,13 @@
     (catch Exception e
       (throw (ex-info "Evaluation failed" {:statement stmt} e)))))
 
-(defn evaluate-all [create-string create-number as-host-boolean initial-variables stmts]
-  (let [variables (var/add-binding initial-variables "self" {:class "RubyObject"})
-        system {:variables (atom variables)
-                :create-string create-string
-                :create-number create-number
-                :as-host-boolean as-host-boolean}]
-    (doseq [stmt stmts]
-      (evaluate system stmt))))
+(defn create-system [create-string create-number as-host-boolean initial-variables]
+  (let [variables (var/add-binding initial-variables "self" {:class "RubyObject"})]
+    {:variables (atom variables)
+     :create-string create-string
+     :create-number create-number
+     :as-host-boolean as-host-boolean}))
+
+(defn evaluate-all [system stmts]
+  (doseq [stmt stmts]
+    (evaluate system stmt)))

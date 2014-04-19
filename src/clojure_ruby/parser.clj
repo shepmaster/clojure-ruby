@@ -51,3 +51,6 @@
 
 (defn clean-parse-tree [tree]
   (insta/transform cleaning-map tree))
+
+(def parse
+  (comp clean-parse-tree ruby-parser))
