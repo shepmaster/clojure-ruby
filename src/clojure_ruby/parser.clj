@@ -46,6 +46,7 @@
    :method-call-logic rename-method-call-alias
    :method-call-relop rename-method-call-alias
    :method-call-self rename-method-call-self
+   :method-call-self-no-parens rename-method-call-self
    :method-call-bracket rename-bracket})
 
 (defn clean-parse-tree [tree]

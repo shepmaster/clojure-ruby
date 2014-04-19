@@ -226,7 +226,7 @@
             [:reference "gamma"]
             "delta"]]])))
 
-(deftest method-call-has-higher-precedence-than-method-call-with-no-parens
+(deftest bracket-method-call-has-higher-precedence-than-method-call-with-no-parens
   (is (unambigous?    "a.b c[d]"))
   (is (= (ruby-parser "a.b c[d]")
          [[:method-call-no-parens
@@ -234,7 +234,13 @@
            "b"
            [:method-call-bracket
             [:reference "c"]
-            [:reference "d"]]]])))
+            [:reference "d"]]]]))
+  (is (unambigous?    "putc str[i]"))
+  (is (= (ruby-parser "putc str[i]")
+         [[:method-call-self-no-parens "putc"
+           [:method-call-bracket
+            [:reference "str"]
+            [:reference "i"]]]])))
 
 (deftest flow-if
   (is (unambigous?    "if 1; o.m; 10; end"))
