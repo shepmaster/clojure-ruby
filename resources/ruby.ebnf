@@ -30,10 +30,14 @@ method-call-relop     = method-call-relop-x NLES relop-symbol S method-call-relo
 
 <method-call-no-parens-x>  = method-call-no-parens
                            | method-call-self-no-parens
-                           | method-call-x
+                           | method-call-addition-x
 method-call-no-parens      = method-call-no-parens-x <"."> id no-paren-arglist
 method-call-self-no-parens = id no-paren-arglist
 <no-paren-arglist>         = !grouping NLES primary-expr NLES (<","> S primary-expr)*
+
+<method-call-addition-x> = method-call-addition | method-call-x
+method-call-addition     = method-call-addition-x NLES addition-symbol S method-call-addition-x
+<addition-symbol>        = "+" | "-"
 
 <method-call-x>     = method-call
                     | method-call-self

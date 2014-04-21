@@ -117,6 +117,14 @@
            "a"
            [:number "1"]]])))
 
+(deftest addition-method-calls
+  (is (unambigous?    "1 + 2"))
+  (is (= (ruby-parser "1 + 2")
+         [[:method-call-addition
+           [:number "1"]
+           "+"
+           [:number "2"]]])))
+
 (deftest object-method-calls
   (is (unambigous?    "alpha.beta"))
   (is (unambigous?    "alpha.beta()"))
@@ -225,6 +233,28 @@
            [:method-call
             [:reference "gamma"]
             "delta"]]])))
+
+(deftest addition-has-higher-precedence-than-method-call-with-no-parens
+  (is (unambigous?    "puts 1 - 2"))
+  (is (= (ruby-parser "puts 1 - 2")
+         [[:method-call-self-no-parens
+           "puts"
+           [:method-call-addition
+            [:number "1"]
+            "-"
+            [:number "2"]]]]))
+  (is (unambigous?    "puts a.b + c.d"))
+  (is (= (ruby-parser "puts a.b + c.d")
+         [[:method-call-self-no-parens
+           "puts"
+           [:method-call-addition
+            [:method-call
+             [:reference "a"]
+             "b"]
+            "+"
+            [:method-call
+             [:reference "c"]
+             "d"]]]])))
 
 (deftest bracket-method-call-has-higher-precedence-than-method-call-with-no-parens
   (is (unambigous?    "a.b c[d]"))

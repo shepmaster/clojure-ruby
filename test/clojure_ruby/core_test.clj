@@ -28,5 +28,8 @@
                      class Foo; def baz; bar; end; end
                      f = Foo.new
                      STDOUT.putc f.baz")
-         "I"))
-)
+         "I")))
+
+(deftest math
+  (is (= (stdout-of "STDOUT.putc 64 + 1")
+         "A")))

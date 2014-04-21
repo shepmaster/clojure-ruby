@@ -45,6 +45,7 @@
    :method-call-no-parens rename-method-call-alias
    :method-call-logic rename-method-call-alias
    :method-call-relop rename-method-call-alias
+   :method-call-addition rename-method-call-alias
    :method-call-self rename-method-call-self
    :method-call-self-no-parens rename-method-call-self
    :method-call-bracket rename-bracket})
