@@ -21,7 +21,7 @@ assignment-bracket-mutate = bracket-common assignment-mutate-rhs
 <mutator-symbol>          = "+=" | "-="
 
 <method-call-logic-x> = method-call-logic | method-call-relop-x
-method-call-logic     = method-call-logic-x NLES logic-symbol S method-call-logic-x
+method-call-logic     = method-call-logic-x NLES logic-symbol S method-call-relop-x
 <logic-symbol>        = "&&"
 
 <method-call-relop-x> = method-call-relop | method-call-no-parens-x

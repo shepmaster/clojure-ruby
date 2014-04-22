@@ -91,6 +91,23 @@
             "-="
             [:number "1"]]]])))
 
+(deftest logic-operators
+  (is (unambigous?    "1 && 2"))
+  (is (= (ruby-parser "1 && 2")
+         [[:method-call-logic
+           [:number "1"]
+           "&&"
+           [:number "2"]]]))
+  (is (unambigous? "1 && 2 && 3"))
+  (is (= (ruby-parser "1 && 2 && 3")
+         [[:method-call-logic
+           [:method-call-logic
+            [:number "1"]
+            "&&"
+            [:number "2"]]
+           "&&"
+           [:number "3"]]])))
+
 (deftest method-calls-without-parens
   (is (unambigous?    "alpha.beta 1"))
   (is (= (ruby-parser "alpha.beta 1")
