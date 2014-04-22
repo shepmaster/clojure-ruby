@@ -166,7 +166,16 @@
          [[:method-call-addition
            [:number "1"]
            "+"
-           [:number "2"]]])))
+           [:number "2"]]]))
+  (is (unambigous?    "1 + 2 - 3"))
+  (is (= (ruby-parser "1 + 2 - 3")
+         [[:method-call-addition
+           [:method-call-addition
+            [:number "1"]
+            "+"
+            [:number "2"]]
+           "-"
+           [:number "3"]]])))
 
 (deftest object-method-calls
   (is (unambigous?    "alpha.beta"))

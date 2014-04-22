@@ -36,7 +36,7 @@ method-call-self-no-parens = id no-paren-arglist
 <no-paren-arglist>         = !grouping NLES primary-expr NLES (<","> S primary-expr)*
 
 <method-call-addition-x> = method-call-addition | method-call-x
-method-call-addition     = method-call-addition-x NLES addition-symbol S method-call-addition-x
+method-call-addition     = method-call-addition-x NLES addition-symbol S method-call-x
 <addition-symbol>        = "+" | "-"
 
 <method-call-x>     = method-call
