@@ -138,7 +138,16 @@
            [:reference "alpha"]
            "beta"
            [:number "1"]
-           [:number "2"]]])))
+           [:number "2"]]]))
+  (is (unambigous?    "a b c 1"))
+  (is (= (ruby-parser "a b c 1")
+         [[:method-call-self-no-parens
+           "a"
+           [:method-call-self-no-parens
+            "b"
+            [:method-call-self-no-parens
+             "c"
+             [:number "1"]]]]])))
 
 (deftest implict-object-method-calls
   (is (unambigous?    "a()"))
