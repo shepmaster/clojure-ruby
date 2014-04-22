@@ -108,6 +108,23 @@
            "&&"
            [:number "3"]]])))
 
+(deftest relational-operators
+  (is (unambigous?    "1 < 2"))
+  (is (= (ruby-parser "1 < 2")
+         [[:method-call-relop
+           [:number "1"]
+           "<"
+           [:number "2"]]]))
+  (is (unambigous?    "1 < 2 > 3"))
+  (is (= (ruby-parser "1 < 2 > 3")
+         [[:method-call-relop
+           [:method-call-relop
+            [:number "1"]
+            "<"
+            [:number "2"]]
+           ">"
+           [:number "3"]]])))
+
 (deftest method-calls-without-parens
   (is (unambigous?    "alpha.beta 1"))
   (is (= (ruby-parser "alpha.beta 1")
@@ -179,13 +196,7 @@
          [[:method-call-bracket
            [:reference "alpha"]
            [:number "1"]
-           [:number "2"]]]))
-  (is (unambigous? "alpha < 4"))
-  (is (= (ruby-parser "alpha < 4")
-         [[:method-call-relop
-           [:reference "alpha"]
-           "<"
-           [:number "4"]]])))
+           [:number "2"]]])))
 
 (deftest logic-has-higher-precedence-than-assignment
   (is (unambigous?    "a = b && c"))

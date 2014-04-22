@@ -25,8 +25,8 @@ method-call-logic     = method-call-logic-x NLES logic-symbol S method-call-relo
 <logic-symbol>        = "&&"
 
 <method-call-relop-x> = method-call-relop | method-call-no-parens-x
-method-call-relop     = method-call-relop-x NLES relop-symbol S method-call-relop-x
-<relop-symbol>        = "<" | "==" | "!="
+method-call-relop     = method-call-relop-x NLES relop-symbol S method-call-no-parens-x
+<relop-symbol>        = "<" | ">" | "==" | "!="
 
 <method-call-no-parens-x>  = method-call-no-parens
                            | method-call-self-no-parens
