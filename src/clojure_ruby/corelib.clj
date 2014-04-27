@@ -10,6 +10,14 @@
     (apply meth obj args)
     (throw (ex-info "Host method lookup failed" {:object obj, :method method-sym}))))
 
+(defmacro def-rbfn
+  "Creates a Ruby method. The special values `system` and `this` will be
+  automatically available."
+  [name args & body]
+  (let [name-sym# (symbol name)]
+    `(defn ~name-sym# [~'system ~'this ~@args]
+       ~@body)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def global-true
@@ -20,11 +28,15 @@
   {:class "FalseClass"
    :host-methods {:boolean (fn false-host-boolean [this] false)}})
 
+(def-rbfn true-and [other] other)
+
 (def TrueClass
-  {:instance-methods {"&&" (fn true-and [system this other] other)}})
+  {:instance-methods {"&&" true-and}})
+
+(def-rbfn false-and [other] this)
 
 (def FalseClass
-  {:instance-methods {"&&" (fn false-and [system this other] this)}})
+  {:instance-methods {"&&" false-and}})
 
 (defn create-boolean [v]
   (if v global-true global-false))
@@ -33,23 +45,23 @@
 
 (declare create-number)
 
-(defn number-lt [system this other]
+(def-rbfn number-lt [other]
   (let [other (host-msg other :number)]
     (create-boolean (< (:data this) other))))
 
-(defn number-plus [system this other]
+(def-rbfn number-plus [other]
   (let [other (host-msg other :number)]
     (create-number (+ (:data this) other))))
 
-(defn number-minus [system this other]
+(def-rbfn number-minus [other]
   (let [other (host-msg other :number)]
     (create-number (- (:data this) other))))
 
-(defn number-equal [system this other]
+(def-rbfn number-equal [other]
   (let [other (host-msg other :number)]
     (create-boolean (= (:data this) other))))
 
-(defn number-not-equal [system this other]
+(def-rbfn number-not-equal [other]
   (let [eq (eval/ruby-msg system this "==" [other])]
     (create-boolean (not (host-msg eq :boolean)))))
 
@@ -73,14 +85,14 @@
 
 (declare create-string)
 
-(defn string-size [system this]
+(def-rbfn string-size []
   (create-number (count (:data this))))
 
-(defn string-bracket [system this idx]
+(def-rbfn string-bracket [idx]
   (let [idx (host-msg idx :number)]
     (create-string (subs (:data this) idx (inc idx)))))
 
-(defn string-equal [system this other]
+(def-rbfn string-equal [other]
   (let [other (host-msg other :string)]
     (create-boolean (= (:data this) other))))
 
@@ -101,11 +113,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn array-bracket [system this idx]
+(def-rbfn array-bracket [idx]
   (let [idx (host-msg idx :number)]
     (nth @(:data this) idx)))
 
-(defn array-bracket-assign [system this idx val]
+(def-rbfn array-bracket-assign [idx val]
   (let [idx (host-msg idx :number)]
     (swap! (:data this) assoc idx val)))
 
@@ -113,7 +125,7 @@
   {:data (atom (vec (repeat cnt val)))
    :class "Array"})
 
-(defn Array-new [system this cnt val]
+(def-rbfn Array-new [cnt val]
   (let [cnt (host-msg cnt :number)]
     (create-array cnt val)))
 
@@ -124,7 +136,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn File-read [system this name]
+(def-rbfn File-read [name]
   (let [name (host-msg name :string)]
     (create-string (slurp name))))
 
@@ -133,7 +145,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn STDOUT-putc [system this obj]
+(def-rbfn STDOUT-putc [obj]
   (let [s (if (type? obj :string)
             (host-msg obj :string)
             (char (host-msg obj :number)))]
