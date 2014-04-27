@@ -1,9 +1,14 @@
 (ns clojure-ruby.core-test
   (:require [clojure.test :refer :all]
-            [clojure-ruby.core :refer :all]))
+            [clojure-ruby.core :refer :all]
+            [clojure-ruby.corelib :as lib]))
 
 (defn stdout-of [ruby-str]
   (with-out-str (full-eval ruby-str)))
+
+(defn number-of [ruby-str]
+  (let [retval (full-eval ruby-str)]
+    (lib/host-msg retval :number)))
 
 (deftest full-stack
   (is (= (stdout-of "STDOUT.putc 65")
@@ -54,4 +59,6 @@
 
 (deftest math
   (is (= (stdout-of "STDOUT.putc 64 + 1")
-         "A")))
+         "A"))
+  (is (= (number-of "100 + 1")
+         101)))

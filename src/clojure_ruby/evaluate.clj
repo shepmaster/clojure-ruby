@@ -132,5 +132,8 @@
      :as-host-boolean as-host-boolean}))
 
 (defn evaluate-all [system stmts]
-  (doseq [stmt stmts]
-    (evaluate system stmt)))
+  (if-let [[stmt & stmts] (seq stmts)]
+    (let [retval (evaluate system stmt)]
+      (if (seq stmts)
+        (recur system stmts)
+        retval))))
