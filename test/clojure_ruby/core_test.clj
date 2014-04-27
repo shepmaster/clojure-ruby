@@ -10,55 +10,89 @@
   (let [retval (full-eval ruby-str)]
     (lib/host-msg retval :number)))
 
-(deftest full-stack
-  (is (= (stdout-of "STDOUT.putc 65")
-         "A"))
-  (is (= (stdout-of "if 1 < 2; STDOUT.putc 66; end")
-         "B"))
-  (is (= (stdout-of "def foo; STDOUT.putc 'C'; end; foo")
-         "C"))
-  (is (= (stdout-of "def foo x; STDOUT.putc x; end; foo 'D'")
-         "D"))
-  (is (= (stdout-of "def foo; 'E'; end; STDOUT.putc foo")
-         "E"))
-  (is (= (stdout-of "class Foo; def bar; 'F'; end; end; f = Foo.new; STDOUT.putc f.bar")
+(defn string-of [ruby-str]
+  (let [retval (full-eval ruby-str)]
+    (lib/host-msg retval :string)))
+
+(deftest literals
+  (testing "integral"
+    (is (= (number-of "65")
+           65)))
+  (testing "string"
+    (is (= (string-of "'Hello'")
+           "Hello"))))
+
+(deftest defining-self-method
+  (is (= (string-of "def foo; 'C'; end; foo")
+         "C")))
+
+(deftest defining-self-method-with-args
+  (is (= (number-of "def foo x; x + 1; end; foo 1")
+         2)))
+
+(deftest defining-class
+  (is (= (string-of "class Foo; def bar; 'F'; end; end
+                     f = Foo.new
+                     f.bar")
          "F"))
-  (is (= (stdout-of "class Foo; def bar; 'G'; end; end
-                     class Foo; def baz; 'H'; end; end
-                     f = Foo.new
-                     STDOUT.putc f.bar
-                     STDOUT.putc f.baz")
-         "GH"))
-  (is (= (stdout-of "class Foo; def bar; 'I'; end; end
-                     class Foo; def baz; bar; end; end
-                     f = Foo.new
-                     STDOUT.putc f.baz")
-         "I"))
-  (is (= (stdout-of "i = 0
+  (testing "multiple methods"
+    (is (= (number-of "class Foo; def bar; 2; end; end
+                       class Foo; def baz; 7; end; end
+                       f = Foo.new
+                       f.bar + f.baz")
+           9)))
+  (testing "methods calling other methods"
+    (is (= (string-of "class Foo; def bar; 'I'; end; end
+                       class Foo; def baz; bar; end; end
+                       f = Foo.new
+                       f.baz")
+           "I"))))
+
+(deftest flow-if
+  (is (= (number-of "if 1 < 2; 66; end")
+         66)))
+
+(deftest flow-while
+  (is (= (number-of "i = 0
+                     val = 0
                      while i < 5
-                       STDOUT.putc 65 + i
+                       val += i
                        i += 1
-                     end")
-         "ABCDE"))
-  (is (= (stdout-of "i = 0
+                     end
+                     val")
+         10)))
+
+(deftest flow-until
+  (is (= (number-of "i = 0
+                     val = 0
                      until 5 < i
-                       STDOUT.putc 65 + i
+                       val += i
                        i += 1
-                     end")
-         "ABCDEF"))
-  (is (= (stdout-of "i = 'b'
+                     end
+                     val")
+         15)))
+
+(deftest flow-case
+  (is (= (string-of "i = 'b'
                      case i
                      when 'a'
-                       STDOUT.putc 'A'
+                       'A'
                      when 'b'
-                       STDOUT.putc 'B'
+                       'B'
                      when 'c'
-                       STDOUT.putc 'C'
+                       'C'
                      end")
          "B")))
 
-(deftest math
-  (is (= (stdout-of "STDOUT.putc 64 + 1")
-         "A"))
+(deftest integer-math
   (is (= (number-of "100 + 1")
-         101)))
+         101))
+  (is (= (number-of "100 - 1")
+         99)))
+
+(deftest stdout
+  (testing "putc"
+    (is (= (stdout-of "STDOUT.putc 65")
+           "A"))
+    (is (= (stdout-of "STDOUT.putc 'C'")
+           "C"))))
