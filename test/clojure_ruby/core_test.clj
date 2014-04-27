@@ -28,7 +28,29 @@
                      class Foo; def baz; bar; end; end
                      f = Foo.new
                      STDOUT.putc f.baz")
-         "I")))
+         "I"))
+  (is (= (stdout-of "i = 0
+                     while i < 5
+                       STDOUT.putc 65 + i
+                       i += 1
+                     end")
+         "ABCDE"))
+  (is (= (stdout-of "i = 0
+                     until 5 < i
+                       STDOUT.putc 65 + i
+                       i += 1
+                     end")
+         "ABCDEF"))
+  (is (= (stdout-of "i = 'b'
+                     case i
+                     when 'a'
+                       STDOUT.putc 'A'
+                     when 'b'
+                       STDOUT.putc 'B'
+                     when 'c'
+                       STDOUT.putc 'C'
+                     end")
+         "B")))
 
 (deftest math
   (is (= (stdout-of "STDOUT.putc 64 + 1")
