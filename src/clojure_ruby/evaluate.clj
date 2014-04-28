@@ -79,9 +79,10 @@
 
 (defmethod evaluate-one :while [system stmt]
   (let [[_ predicate & body] stmt
-        {:keys [as-host-boolean]} system]
+        {:keys [as-host-boolean create-nil]} system]
     (while (as-host-boolean (evaluate system predicate))
-      (evaluate-body system body))))
+      (evaluate-body system body))
+    (create-nil)))
 
 (defmethod evaluate-one :until [system stmt]
   (let [[_ predicate & body] stmt
@@ -124,9 +125,10 @@
     (catch Exception e
       (throw (ex-info "Evaluation failed" {:statement stmt} e)))))
 
-(defn create-system [create-string create-number as-host-boolean initial-variables]
+(defn create-system [create-nil create-string create-number as-host-boolean initial-variables]
   (let [variables (var/add-binding initial-variables "self" {:class "RubyObject"})]
     {:variables (atom variables)
+     :create-nil create-nil
      :create-string create-string
      :create-number create-number
      :as-host-boolean as-host-boolean}))

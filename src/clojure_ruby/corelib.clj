@@ -20,6 +20,16 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(def global-nil
+  {:class "NilClass"})
+
+(def NilClass)
+
+(defn create-nil []
+  global-nil)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (def global-true
   {:class "TrueClass"
    :host-methods {:boolean (fn true-host-boolean [this] true)}})
@@ -171,6 +181,7 @@
 (def global-variables
   (-> (var/create-vars)
       (var/add-binding "RubyObject" RubyObject)
+      (var/add-binding "NilClass" TrueClass)
       (var/add-binding "TrueClass" TrueClass)
       (var/add-binding "FalseClass" FalseClass)
       (var/add-binding "RubyNumber" RubyNumber)

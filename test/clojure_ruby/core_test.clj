@@ -60,7 +60,9 @@
                        i += 1
                      end
                      val")
-         10)))
+         10))
+  (is (= (full-eval "while 1 == 2; end")
+         lib/global-nil)))
 
 (deftest flow-until
   (is (= (number-of "i = 0

@@ -4,7 +4,8 @@
             [clojure-ruby.corelib :as lib]))
 
 (defn blank-system []
-  (eval/create-system lib/create-string
+  (eval/create-system lib/create-nil
+                      lib/create-string
                       lib/create-number
                       lib/as-host-boolean
                       lib/global-variables))
