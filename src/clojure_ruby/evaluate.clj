@@ -69,13 +69,14 @@
 
 (defmethod evaluate-one :if [system stmt]
  (let [[_ & branches] stmt
-       {:keys [as-host-boolean]} system]
+       {:keys [as-host-boolean create-nil]} system]
    (loop [branches branches]
      (if-let [[branch & branches] branches]
        (let [[_ predicate & body] branch]
          (if (as-host-boolean (evaluate system predicate))
            (evaluate-body system body)
-           (recur branches)))))))
+           (recur branches)))
+       (create-nil)))))
 
 (defmethod evaluate-one :while [system stmt]
   (let [[_ predicate & body] stmt
@@ -86,27 +87,31 @@
 
 (defmethod evaluate-one :until [system stmt]
   (let [[_ predicate & body] stmt
-        {:keys [as-host-boolean]} system]
+        {:keys [as-host-boolean create-nil]} system]
     (while (not (as-host-boolean (evaluate system predicate)))
-      (evaluate-body system body))))
+      (evaluate-body system body))
+    (create-nil)))
 
 (defmethod evaluate-one :case [system stmt]
   (let [[_ predicate & whens] stmt
         predicate (evaluate system predicate)
-        {:keys [as-host-boolean]} system]
+        {:keys [as-host-boolean create-nil]} system]
     (loop [whens whens]
       (if-let [[when & whens] (seq whens)]
         (let [[_ matcher & body] when
               matcher (evaluate system matcher)]
           (if (as-host-boolean (ruby-msg system predicate "===" [matcher]))
             (evaluate-body system body)
-            (recur whens)))))))
+            (recur whens)))
+        (create-nil)))))
 
 (defmethod evaluate-one :method-def [system stmt]
-  (let [[_ name args & body] stmt]
+  (let [[_ name args & body] stmt
+        {:keys [as-host-boolean create-nil]} system]
     (let [clz-name (-> system get-self :class)]
       (swap! (:variables system)
-             var/add-method clz-name name {:arg-defs (rest args), :body body}))))
+             var/add-method clz-name name {:arg-defs (rest args), :body body}))
+    (create-nil)))
 
 (defmethod evaluate-one :class-def [system stmt]
   (let [[_ name & body] stmt]

@@ -22,13 +22,15 @@
     (is (= (string-of "'Hello'")
            "Hello"))))
 
-(deftest defining-self-method
+(deftest defining-method
   (is (= (string-of "def foo; 'C'; end; foo")
-         "C")))
-
-(deftest defining-self-method-with-args
-  (is (= (number-of "def foo x; x + 1; end; foo 1")
-         2)))
+         "C"))
+  (testing "with arguments"
+    (is (= (number-of "def foo x; x + 1; end; foo 1")
+           2)))
+  (testing "return value"
+    (is (= (full-eval "def foo; end")
+           lib/global-nil))))
 
 (deftest defining-class
   (is (= (string-of "class Foo; def bar; 'F'; end; end
@@ -46,11 +48,16 @@
                        class Foo; def baz; bar; end; end
                        f = Foo.new
                        f.baz")
-           "I"))))
+           "I")))
+  (testing "return value"
+    (is (= (string-of "class Foo; 'hello'; end")
+           "hello"))))
 
 (deftest flow-if
   (is (= (number-of "if 1 < 2; 66; end")
-         66)))
+         66))
+  (is (= (full-eval "if 1 == 2; end")
+         lib/global-nil)))
 
 (deftest flow-while
   (is (= (number-of "i = 0
@@ -72,7 +79,9 @@
                        i += 1
                      end
                      val")
-         15)))
+         15))
+  (is (= (full-eval "until 1 == 1; end")
+         lib/global-nil)))
 
 (deftest flow-case
   (is (= (string-of "i = 'b'
@@ -84,7 +93,9 @@
                      when 'c'
                        'C'
                      end")
-         "B")))
+         "B"))
+  (is (= (full-eval "case 'a'; when 'b'; end")
+         lib/global-nil)))
 
 (deftest integer-math
   (is (= (number-of "100 + 1")
