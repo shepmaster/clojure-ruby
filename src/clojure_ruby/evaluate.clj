@@ -14,7 +14,10 @@
 (defn bind-arguments [vars arg-defns args]
   (reduce #(apply var/add-binding %1 %2) vars (map list arg-defns args)))
 
-(defn ruby-defined-method-call [system method obj args]
+(defn evaluate-host-defined-method-call [system method obj args]
+  (apply method system obj args))
+
+(defn evaluate-ruby-defined-method-call [system method obj args]
   (let [_ (swap! (:variables system) var/push-bindings)
         _ (swap! (:variables system) bind-arguments (:arg-defs method) args)
         _ (swap! (:variables system) var/add-binding "self" obj)
@@ -22,11 +25,11 @@
         _ (swap! (:variables system) var/pop-bindings)]
     r))
 
-(defn ruby-msg [system obj method-name args]
+(defn evaluate-ruby-msg [system obj method-name args]
   (if-let [meth (method-lookup system obj method-name)]
     (if (fn? meth)
-      (apply meth system obj args)
-      (ruby-defined-method-call system meth obj args))
+      (evaluate-host-defined-method-call system meth obj args)
+      (evaluate-ruby-defined-method-call system meth obj args))
     (throw (ex-info "Method lookup failed" {:object obj, :method method-name}))))
 
 (defmulti evaluate-one (fn [vars stmt] (first stmt)))
@@ -48,14 +51,14 @@
       var
       (let [self (get-self system)]
         (if (method-lookup system self name)
-          (ruby-msg system self name [])
+          (evaluate-ruby-msg system self name [])
           (throw (ex-info "Cannot find variable or method" {:name name})))))))
 
 (defmethod evaluate-one :method-call [system stmt]
   (let [[_ obj method & args] stmt
         obj (evaluate system obj)
         args (map (partial evaluate system) args)]
-    (ruby-msg system obj method args)))
+    (evaluate-ruby-msg system obj method args)))
 
 (defmethod evaluate-one :number [system stmt]
   (let [[_ val] stmt
@@ -100,7 +103,7 @@
       (if-let [[when & whens] (seq whens)]
         (let [[_ matcher & body] when
               matcher (evaluate system matcher)]
-          (if (as-host-boolean (ruby-msg system predicate "===" [matcher]))
+          (if (as-host-boolean (evaluate-ruby-msg system predicate "===" [matcher]))
             (evaluate-body system body)
             (recur whens)))
         (create-nil)))))

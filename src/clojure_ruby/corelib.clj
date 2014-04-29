@@ -72,7 +72,7 @@
     (create-boolean (= (:data this) other))))
 
 (def-rbfn number-not-equal [other]
-  (let [eq (eval/ruby-msg system this "==" [other])]
+  (let [eq (eval/evaluate-ruby-msg system this "==" [other])]
     (create-boolean (not (host-msg eq :boolean)))))
 
 (defn number-host-number [this]
