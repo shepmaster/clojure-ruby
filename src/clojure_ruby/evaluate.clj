@@ -146,8 +146,4 @@
      :as-host-boolean as-host-boolean}))
 
 (defn evaluate-all [system stmts]
-  (if-let [[stmt & stmts] (seq stmts)]
-    (let [retval (evaluate system stmt)]
-      (if (seq stmts)
-        (recur system stmts)
-        retval))))
+  (evaluate-body system stmts))
