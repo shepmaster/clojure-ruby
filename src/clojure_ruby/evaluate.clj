@@ -4,7 +4,10 @@
 (declare evaluate)
 
 (defn evaluate-body [system body]
-  (last (mapv (partial evaluate system) body)))
+  (let [{:keys [create-nil]} system]
+    (if (seq body)
+      (last (mapv (partial evaluate system) body))
+      (create-nil))))
 
 (defn method-lookup [system obj method-name]
   (or (get-in obj [:methods method-name])
