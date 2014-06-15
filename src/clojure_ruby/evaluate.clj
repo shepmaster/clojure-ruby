@@ -75,15 +75,15 @@
     (create-string val)))
 
 (defmethod evaluate-one :if [system stmt]
- (let [[_ & branches] stmt
-       {:keys [as-host-boolean create-nil]} system]
-   (loop [branches branches]
-     (if-let [[branch & branches] branches]
-       (let [[_ predicate & body] branch]
-         (if (as-host-boolean (evaluate system predicate))
-           (evaluate-body system body)
-           (recur branches)))
-       (create-nil)))))
+  (let [[_ & branches] stmt
+        {:keys [as-host-boolean create-nil]} system]
+    (loop [branches branches]
+      (if-let [[branch & branches] (seq branches)]
+        (let [[_ predicate & body] branch]
+          (if (as-host-boolean (evaluate system predicate))
+            (evaluate-body system body)
+            (recur branches)))
+        (create-nil)))))
 
 (defmethod evaluate-one :while [system stmt]
   (let [[_ predicate & body] stmt
