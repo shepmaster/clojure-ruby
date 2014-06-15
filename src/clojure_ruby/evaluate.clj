@@ -35,7 +35,7 @@
       (evaluate-ruby-defined-method-call system meth obj args))
     (throw (ex-info "Method lookup failed" {:object obj, :method method-name}))))
 
-(defmulti evaluate-one (fn [vars stmt] (first stmt)))
+(defmulti evaluate-one (fn [system stmt] (first stmt)))
 
 (defmethod evaluate-one :assignment [system stmt]
   (let [[_ name val] stmt
