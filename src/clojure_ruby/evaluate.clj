@@ -40,7 +40,8 @@
 (defmethod evaluate-one :assignment [system stmt]
   (let [[_ name val] stmt
         val (evaluate system val)]
-    (swap! (:variables system) var/add-binding name val)))
+    (swap! (:variables system) var/add-binding name val)
+    val))
 
 (defn get-self [system]
   (var/get-binding @(:variables system) "self"))
